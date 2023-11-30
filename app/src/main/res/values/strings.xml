@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Player</string>
+
+    <string name="auth_failed">Box authentication failed.</string>
+</resources>
