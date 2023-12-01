@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 android {
@@ -8,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.gi.hybridplayer"
-        minSdk 28
+        minSdk 26
         targetSdk 34
         versionCode 1
         versionName "1.05"
@@ -28,12 +29,27 @@ android {
 
 dependencies {
 
+    implementation 'androidx.room:room-common:2.6.0'
+    //noinspection GradleDependency
+    kapt "androidx.room:room-compiler:2.5.2"
+    implementation 'androidx.room:room-ktx:2.6.0'
+    implementation 'androidx.room:room-runtime:2.6.0'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.leanback:leanback:1.0.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
     implementation "com.fasterxml.jackson.core:jackson-core:2.11.1"
     implementation "com.fasterxml.jackson.core:jackson-annotations:2.11.1"
     implementation "com.fasterxml.jackson.core:jackson-databind:2.11.1"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2"
+    implementation "androidx.lifecycle:lifecycle-livedata:2.6.2"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"
+    implementation 'org.jsoup:jsoup:1.14.2'
+    implementation 'com.google.code.gson:gson:2.9.0'
+    implementation 'com.google.android.exoplayer:exoplayer-common:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+    implementation "com.google.android.exoplayer:extension-leanback:2.19.1"
+
 
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

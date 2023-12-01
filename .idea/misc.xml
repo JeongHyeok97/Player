@@ -3,7 +3,24 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/action_shape.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/default_background.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/details_button_shape.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/edit_button_shape.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/edit_text_shape.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/loading_circles.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/portal_cardview_background.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/portal_connected_item_drawable.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/seekbar_drawable.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/spinner_shape.xml" value="0.1205" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_main.xml" value="0.46822916666666664" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/add_portal_image.xml" value="0.2552083333333333" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_action.xml" value="0.25625" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_edit.xml" value="0.4671875" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_loading.xml" value="0.25625" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/item_portal.xml" value="0.25625" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/spinner_textview.xml" value="0.46822916666666664" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/xml/tv_input.xml" value="0.2552083333333333" />
       </map>
     </option>
   </component>

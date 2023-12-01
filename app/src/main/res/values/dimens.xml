@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="main_page_top_margin">120dp</dimen>
+    <dimen name="detail_cardview_width">140dp</dimen>
+    <dimen name="detail_cardview_height">175dp</dimen>
+
+    <!--TV Scaling-->
+    <dimen name="tv_view_scaled_width">300dp</dimen>
+    <dimen name="tv_view_scaled_height">160dp</dimen>
+    <dimen name="tv_view_scaled_margin_left">32dp</dimen>
+    <dimen name="tv_view_scaled_margin_top">10dp</dimen>
+    <dimen name="dialog_width">350dp</dimen>
+    <dimen name="dialog_height">400dp</dimen>
+
+    <dimen name="lb_settings_pane_width">520dp</dimen>
+    <dimen name="lb_preference_item_padding_end">0dp</dimen>
+    <dimen name="lb_preference_item_padding_start">52dp</dimen>
+</resources>

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.gi.hybridplayer.conf.DeviceManager
 import com.gi.hybridplayer.conf.Server
 import com.gi.hybridplayer.databinding.ActivityMainBinding
+import com.gi.hybridplayer.db.repository.PortalRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ class MainActivity : FragmentActivity(){
 
     private lateinit var mainActivityBinding: ActivityMainBinding
     private val mBackgroundScope = CoroutineScope(Dispatchers.IO)
+    private lateinit var mRepository: PortalRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,8 +93,6 @@ class MainActivity : FragmentActivity(){
 
         val versionCode = BuildConfig.VERSION_CODE
         val versionName = BuildConfig.VERSION_NAME
-
-
         val response = client.newCall(request).execute()
         if (response.isSuccessful) {
             val versionData = ObjectMapper().readTree(response.body?.string())
@@ -124,12 +124,27 @@ class MainActivity : FragmentActivity(){
                 }
             }
             else{
-
+                val isHistoryEmpty = true
+                response.close()
+                mRepository = PortalRepository(this)
+                if (isHistoryEmpty){
+                    val sfm = supportFragmentManager
+                    if (!sfm.isDestroyed){
+                        runOnUiThread{
+                            sfm.beginTransaction()
+                                .replace(R.id.portal_fragment, MainFragment())
+                                .commit()
+                        }
+                    }
+                }
             }
         }
 
     }
 
+    fun getRepository(): PortalRepository {
+        return mRepository
+    }
 
 
 }

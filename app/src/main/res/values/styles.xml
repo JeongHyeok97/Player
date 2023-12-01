@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextStyle_PortalName">
+        <item name="android:fontFamily">san-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
+    <style name="TextStyle_Portal_Url">
+        <item name="android:fontFamily">san-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">#B3FFFFFF</item>
+    </style>
+
+    <style name="TextStyle_Portal_ExpDate">
+        <item name="android:fontFamily">san-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#80FFFFFF</item>
+    </style>
+
+
+    <style name="TextStyle_Portal_Connections">
+        <item name="android:fontFamily">san-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#B3FFFFFF</item>
+    </style>
+
+    <style name="Style.EditPortal" parent="Theme.Leanback">
+        <item name="android:layout_width">450dp</item>
+        <item name="android:layout_height">50dp</item>
+
+    </style>
+
+    <style name="Style.EditPortal.EditText" parent="Style.EditPortal">
+        <item name="android:padding">5dp</item>
+        <item name="android:background">@drawable/edit_text_shape</item>
+    </style>
+
+    <style name="Style.EditPortal.Spinner" parent="Style.EditPortal">
+        <item name="android:background">@drawable/spinner_shape</item>
+        <item name="android:spinnerMode">dialog</item>
+    </style>
+    <style name="Style.EditPortal.Button" parent="Style.EditPortal">
+        <item name="android:background">@drawable/edit_button_shape</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">san-serif-light</item>
+    </style>
+    <style name="Style.FullScreen" parent="">
+
+    </style>
+
+    <style name="Style.Series" parent="">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">10dp</item>
+
+    </style>
+
+
+    <style name="Style.FullScreen.Action" parent="Style.FullScreen">
+        <item name="android:layout_width">600dp</item>
+        <item name="android:layout_height">80dp</item>
+        <item name="android:background">@drawable/action_shape</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#CDCDCD</item>
+        <item name="android:fontFamily">san-serif-medium</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+    </style>
+
+
+    <style name="Style.Details.Button" parent="">
+        <item name="android:background">@drawable/details_button_shape</item>
+        <item name="android:layout_width">125dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:focusable">true</item>
+        <item name="android:focusableInTouchMode">true</item>
+
+
+    </style>
+
+    <style name="Style.Settings" parent="">
+
+    </style>
+
+    <style name="Style.Settings.Result" parent="Style.Settings">
+        <item name="android:textSize">24sp</item>
+        <item name="android:gravity">center_vertical</item>
+
+    </style>
+
+
+</resources>
