@@ -7,6 +7,7 @@ import android.util.Log
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.gi.hybridplayer.conf.ConnectManager
+import com.gi.hybridplayer.db.repository.TvRepository
 import com.gi.hybridplayer.model.Channel
 import com.gi.hybridplayer.model.Portal
 import kotlinx.coroutines.Dispatchers
@@ -33,46 +34,34 @@ class TvDataManager(context: Context, portal: Portal) {
 
     suspend fun insert(data: String, stateListener:StateListener){
         val inputId = getInputId()
-
+        val repository = TvRepository.getInstance(context = mContext)
+        repository.clear()
         try {
             val dataNode = objectMapper.readTree(data)[ConnectManager.NODE_JS][ConnectManager.NODE_DATA]
             val totalChannels = dataNode.size()
-            val batchSize = 100 // Set the desired batch size
-
+            val batchSize = 100
             for (startIndex in 0 until totalChannels step batchSize) {
                 val percent = startIndex*100/totalChannels
                 withContext(Dispatchers.Main){
                     stateListener.onProgress(percent)
                 }
                 val endIndex = minOf(startIndex + batchSize, totalChannels)
-                val dataSegment = ArrayList<JsonNode>()
-
-                for (i in startIndex until endIndex) {
-                    dataSegment.add(dataNode.get(i))
-                }
-
                 val channelList = mutableListOf<Channel>()
-
-                for (node in dataSegment) {
+                for (i in startIndex until endIndex) {
+                    val node = dataNode.get(i)
                     val channel = objectMapper.treeToValue(node, Channel::class.java)
                     channel.inputId = inputId
                     channel.packageName = mContext.packageName
                     channelList.add(channel)
                 }
-
+                repository.insert(channelList)
             }
-            Log.d(TAG, "$totalChannels")
-
         }
         catch (e:Exception){
             e.printStackTrace()
         }
-
         mPortal.connected = true
-
         stateListener.onConnect(portal = mPortal)
-
-
     }
 
     private fun getInputId():String{

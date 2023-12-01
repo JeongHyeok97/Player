@@ -26,7 +26,7 @@ interface ChannelsDao {
     suspend fun delete(channel: Channel)
 
     @Query("DELETE FROM channel")
-    suspend fun deleteAll()
+    suspend fun clear()
 
 
     @Query("SELECT COUNT(*) FROM channel")

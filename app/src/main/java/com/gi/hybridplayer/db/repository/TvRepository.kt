@@ -9,6 +9,10 @@ import com.gi.hybridplayer.model.Channel
 
 class TvRepository(context: Context) {
 
+    private val mChannelList: MutableMap<Long, Channel> = linkedMapOf()
+    private val mListHashMap: MutableMap<String, MutableList<Channel>> = linkedMapOf()
+
+
     companion object{
         fun getInstance(context: Context): TvRepository{
             return TvRepository(context)
@@ -24,6 +28,19 @@ class TvRepository(context: Context) {
     init {
         this.mContext = context
     }
+
+    suspend fun insert(list:List<Channel>){
+        channelsDao.applyList(list)
+    }
+    suspend fun clear(){
+        channelsDao.clear()
+    }
+
+    suspend fun getAllChannels(): List<Channel> {
+        return channelsDao.getChannels()
+    }
+
+
 
 
 }
