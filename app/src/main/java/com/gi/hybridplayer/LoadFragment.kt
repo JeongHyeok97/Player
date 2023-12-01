@@ -27,7 +27,7 @@ class LoadFragment(private var selectedPortal: Portal): Fragment(), TvDataManage
         super.onViewCreated(view, savedInstanceState)
         binding.loadingCircle.startAnimation(AnimationUtils.loadAnimation(context, R.anim.rotate))
         val connectManager = ConnectManager(selectedPortal)
-        val inputId:String = getInputId()
+
         val dataManager = TvDataManager(requireContext(), selectedPortal)
         CoroutineScope(Dispatchers.IO).launch {
             val channelsData = connectManager.getAllChannelsData()
@@ -89,12 +89,5 @@ class LoadFragment(private var selectedPortal: Portal): Fragment(), TvDataManage
 
 
 
-    private fun getInputId():String{
-        val componentName = context?.let {
-            ComponentName(it.packageName, InputService::class.java.name) }
-        val builder: TvInputInfo.Builder = TvInputInfo.Builder(context, componentName)
-        val tvInputInfo: TvInputInfo = builder.build()
-        val intent = tvInputInfo.createSetupIntent()
-        return intent.getStringExtra(TvInputInfo.EXTRA_INPUT_ID)!!
-    }
+
 }

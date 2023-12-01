@@ -14,8 +14,7 @@ interface ChannelsDao {
 
 
     @Query("SELECT * FROM channel WHERE originalNetworkId = :originalNetworkId")
-    suspend fun getChannel(originalNetworkId: Long){
-    }
+    suspend fun getChannel(originalNetworkId: Long):Channel?
     @Insert
     suspend fun insert(channel: Channel)
 
@@ -31,5 +30,12 @@ interface ChannelsDao {
 
     @Query("SELECT COUNT(*) FROM channel")
     suspend fun getChannelCount(): Int
+
+    @Query("SELECT * FROM channel WHERE genreId = :genreId")
+    suspend fun getGroup(genreId:String): List<Channel>
+
+
+    @Query("SELECT * FROM channel WHERE isFavorite = 1")
+    suspend fun getFavoriteChannels():List<Channel>
 
 }

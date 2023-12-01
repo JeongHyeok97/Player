@@ -7,9 +7,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Surface
-import android.widget.Toast
 import com.gi.hybridplayer.conf.ConnectManager
-import com.gi.hybridplayer.conf.DeviceManager
+import com.gi.hybridplayer.db.repository.TvRepository
+import com.gi.hybridplayer.model.Portal
+import com.gi.hybridplayer.model.TrackInfo
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.PlaybackException
@@ -41,19 +42,25 @@ class InputService : TvInputService(){
         return RecordSession(this, inputId)
     }
 
-    inner class InputSession(context: Context?) :
+    inner class InputSession(context: Context) :
         TvInputService.Session(context), Player.Listener, AnalyticsListener{
-        private var mPlayer: TvPlayer? = null
+        private var mPlayer: TPlayer? = null
         private var mSurface:Surface? = null
         private val handler:Handler = Handler(Looper.getMainLooper())
         private var mConnectManager: ConnectManager? = null
+        private val mRepository: TvRepository
+        private val mContext:Context
         init {
+            mContext = context
+            mRepository = TvRepository.getInstance(mContext)
             initPlayer()
+
         }
 
 
         fun initPlayer(){
-            mPlayer = TvPlayer(this@InputService)
+
+            mPlayer = TPlayer(this@InputService)
             mPlayer?.addListener(this)
             mPlayer?.addAnalyticsListener(this)
         }
@@ -141,62 +148,61 @@ class InputService : TvInputService(){
         }
 
         override fun onTune(channelUri: Uri?): Boolean {
+
             notifyVideoUnavailable(TvInputManager.VIDEO_UNAVAILABLE_REASON_TUNING)
-//            playChannel(channelUri!!)
+            playChannel(channelUri!!)
             return true
         }
 
         private fun playChannel(channelUri: Uri, bundle: Bundle? = null){
-//            CoroutineScope(Dispatchers.IO).launch {
-//                val channel = Repository.getChannel(this@InputService, channelUri)
-//                if (channel != null){
-//                    if (channel.isLocked()){
-//                        if (bundle != null){
-//                            if (bundle.getBoolean("auth", false)){
-//                                val url = channel.getVideoUrl()
-//                                play(url, bundle)
-//                            }
-//                            else{
-//                                notifyContentBlocked(TvContentRating.UNRATED)
-//                            }
-//                        }
-//                    }
-//                    else{
-//                        val url = channel.getVideoUrl()
-//                        play(url, bundle)
-//                    }
-//                }
-//            }
+            CoroutineScope(Dispatchers.IO).launch {
+                val channel = mRepository.getChannel("$channelUri".toLong())
+
+                if (channel != null){
+                    if (channel.isLocked){
+                        if (bundle != null){
+                            if (bundle.getBoolean("auth", false)){
+                                val url = channel.videoUrl
+                                play(url, bundle)
+                            }
+                            else{
+                                notifyContentBlocked(TvContentRating.UNRATED)
+                            }
+                        }
+                    }
+                    else{
+                        val url = channel.videoUrl
+                        play(url, bundle)
+                    }
+                }
+            }
         }
 
 
-        private fun play(url: String, bundle: Bundle? = null){
-//            var channelUrl = ""
-//            if (url.contains("localhost") && bundle != null){
-//                if (mConnectManager == null){
-//                    val portal = Portal(serverUrl = bundle.getString("server")!!,
-//                        macAddress = bundle.getString("mac")!!,
-//                        token = bundle.getString("token")!!,
-//                        url = bundle.getString("url")!!
-//                    )
-//                    mConnectManager = ConnectManager(portal)
-//
-//                }
-//                channelUrl = mConnectManager!!.createLink(
-//                    type = ConnectManager.TYPE_ITV,
-//                    cmd = url,
-//                )!!
-//            }
-//            else{
-//                channelUrl = url.substring(url.indexOf("http"), url.length)
-//            }
-//            mChannelUrl = channelUrl
-//
-//
-//            handler.post {
-//
-//                mPlayer?.init(mChannelUrl!!)
-//            }
+        private fun play(url: String?, bundle: Bundle? = null){
+            var channelUrl = ""
+            if (url?.contains("localhost") == true && bundle != null){
+                if (mConnectManager == null){
+                    val portal = Portal(serverUrl = bundle.getString("server")!!,
+                        macAddress = bundle.getString("mac")!!,
+                        token = bundle.getString("token")!!,
+                        url = bundle.getString("url")!!
+                    )
+                    mConnectManager = ConnectManager(portal)
+
+                }
+                channelUrl = mConnectManager!!.createLink(
+                    type = ConnectManager.TYPE_ITV,
+                    cmd = url,
+                )!!
+            }
+            else{
+                channelUrl = url?.substring(url.indexOf("http"), url.length)!!
+            }
+            mChannelUrl = channelUrl
+            handler.post {
+                mPlayer?.init(mChannelUrl!!)
+            }
         }
 
         override fun onSetCaptionEnabled(enabled: Boolean) {
@@ -222,58 +228,48 @@ class InputService : TvInputService(){
             }
         }
 
-
-
-
-
-
-
-
-
-
-
         private fun getTrackId(trackType: Int, trackIndex: Int): String? {
             return "$trackType-$trackIndex"
         }
         private fun getTracks(): List<TvTrackInfo>? {
 
             val trackInfos: MutableList<TvTrackInfo> = ArrayList()
-//            val trackTypes = intArrayOf(
-//                TvTrackInfo.TYPE_AUDIO,
-//                TvTrackInfo.TYPE_VIDEO,
-//                TvTrackInfo.TYPE_SUBTITLE
-//            )
-//            for (trackType in trackTypes) {
-//                val formats: List<Format> = mPlayer?.getSelectedFormats(trackType)!!
-//                for (format in formats) {
-//                    val trackId: String = getTrackId(trackType, formats.indexOf(format))!!
-//                    val builder = TvTrackInfo.Builder(trackType, trackId)
-//                    if (trackType == TvTrackInfo.TYPE_AUDIO) {
-//                        builder.setAudioChannelCount(format.channelCount)
-//                        builder.setAudioSampleRate(format.sampleRate)
-//
-//                        builder.setDescription("audio/${TrackInfo.getCodecName(format.sampleMimeType.toString())}")
-//                        if (format.language != null && format.language != "und") {
-//                            builder.setLanguage(format.language!!)
-//                        }
-//                    } else if (trackType == TvTrackInfo.TYPE_VIDEO) {
-//                        if (format.width != Format.NO_VALUE) {
-//                            builder.setVideoWidth(format.width)
-//                        }
-//                        if (format.height != Format.NO_VALUE) {
-//                            builder.setVideoHeight(format.height)
-//                        }
-//
-//
-//                        builder.setDescription("video/${TrackInfo.getCodecName(format.sampleMimeType.toString())}")
-//                    } else if (trackType == TvTrackInfo.TYPE_SUBTITLE) {
-//                        if (format.language != null && format.language != "und") {
-//                            builder.setLanguage(format.language!!)
-//                        }
-//                    }
-//                    trackInfos.add(builder.build())
-//                }
-//            }
+            val trackTypes = intArrayOf(
+                TvTrackInfo.TYPE_AUDIO,
+                TvTrackInfo.TYPE_VIDEO,
+                TvTrackInfo.TYPE_SUBTITLE
+            )
+            for (trackType in trackTypes) {
+                val formats: List<Format> = mPlayer?.getSelectedFormats(trackType)!!
+                for (format in formats) {
+                    val trackId: String = getTrackId(trackType, formats.indexOf(format))!!
+                    val builder = TvTrackInfo.Builder(trackType, trackId)
+                    if (trackType == TvTrackInfo.TYPE_AUDIO) {
+                        builder.setAudioChannelCount(format.channelCount)
+                        builder.setAudioSampleRate(format.sampleRate)
+
+                        builder.setDescription("audio/${TrackInfo.getCodecName(format.sampleMimeType.toString())}")
+                        if (format.language != null && format.language != "und") {
+                            builder.setLanguage(format.language!!)
+                        }
+                    } else if (trackType == TvTrackInfo.TYPE_VIDEO) {
+                        if (format.width != Format.NO_VALUE) {
+                            builder.setVideoWidth(format.width)
+                        }
+                        if (format.height != Format.NO_VALUE) {
+                            builder.setVideoHeight(format.height)
+                        }
+
+
+                        builder.setDescription("video/${TrackInfo.getCodecName(format.sampleMimeType.toString())}")
+                    } else if (trackType == TvTrackInfo.TYPE_SUBTITLE) {
+                        if (format.language != null && format.language != "und") {
+                            builder.setLanguage(format.language!!)
+                        }
+                    }
+                    trackInfos.add(builder.build())
+                }
+            }
             return trackInfos
         }
 
@@ -296,7 +292,7 @@ class InputService : TvInputService(){
                 mPlayer?.seekTo(newPosition.mediaItemIndex, newPosition.positionMs)
             }
         }
-        fun getTvPlayer():TvPlayer?{
+        fun getTvPlayer():TPlayer?{
             return mPlayer
         }
 

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.google.android.exoplayer2.ui.StyledPlayerView
+            android:id="@+id/tv_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:use_controller="false"
+            />
+
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id ="@+id/banner_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/tv_view"
+            app:layout_constraintEnd_toEndOf="@id/tv_view"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+        <androidx.fragment.app.FragmentContainerView
+            android:id = "@+id/category_container"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="-100dp"
+            app:layout_constraintEnd_toStartOf="parent"
+
+            />
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id = "@+id/channel_container"
+            android:layout_width="400dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="-100dp"
+            app:layout_constraintStart_toEndOf="@id/category_container"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

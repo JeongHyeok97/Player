@@ -14,6 +14,7 @@ import com.gi.hybridplayer.conf.DeviceManager
 import com.gi.hybridplayer.conf.Server
 import com.gi.hybridplayer.databinding.ActivityMainBinding
 import com.gi.hybridplayer.db.repository.PortalRepository
+import com.gi.hybridplayer.model.Portal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,16 +125,26 @@ class MainActivity : FragmentActivity(){
                 }
             }
             else{
-                val isHistoryEmpty = true
                 response.close()
                 mRepository = PortalRepository(this)
-                if (isHistoryEmpty){
-                    val sfm = supportFragmentManager
-                    if (!sfm.isDestroyed){
-                        runOnUiThread{
-                            sfm.beginTransaction()
-                                .replace(R.id.portal_fragment, MainFragment())
-                                .commit()
+                mBackgroundScope.launch {
+                    val connectedPortal = mRepository.getConnectedPortal()
+                    withContext(Dispatchers.Main){
+                        if (connectedPortal == null){
+                            val sfm = supportFragmentManager
+                            if (!sfm.isDestroyed){
+                                runOnUiThread{
+                                    sfm.beginTransaction()
+                                        .replace(R.id.portal_fragment, MainFragment())
+                                        .commit()
+                                }
+                            }
+                        }
+                        else{
+                            val intent = Intent(this@MainActivity, TvActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            intent.putExtra(Portal.PORTAL_INTENT_TAG, connectedPortal)
+                            startActivity(intent)
                         }
                     }
                 }

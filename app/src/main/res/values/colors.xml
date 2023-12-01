@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_gradient_start">#000000</color>
+    <color name="background_gradient_end">#E6D2D2D2</color>
+    <color name="fastlane_background">#0096a6</color>
+    <color name="search_opaque">#ffaa3f</color>
+    <color name="selected_background">#ffaa3f</color>
+    <color name="default_background">#3d3d3d</color>
+    <color name="color_theme_phoenix">#E6FF96B4</color>
+    <color name="phoenix">#ff297e</color>
+
+    <color name="red_gray">#C0AFB4</color>
+
+    <color name="alpha_yellow">#BFFFF53F</color>
+    <color name="alpha_blue">#BF0064F0</color>
+    <color name="caption_background">#80000000</color>
+    <color name="numcard_background">#A64B4B4B</color>
+    <color name="transparent">#00000000</color>
+</resources>

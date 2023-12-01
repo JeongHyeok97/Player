@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="20dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <View
+        android:id = "@+id/banner_keyguide_image_record"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="20dp"
+        android:background = "@drawable/programguide_keyguide_background"
+        android:backgroundTint = "#FF0000"
+        />
+    <TextView
+        style="@style/ProgramGuide.Text.KeyGuide"
+        android:id = "@+id/banner_keyguide_text_record"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/banner_keyguide_image_record"
+        android:text = "@string/banner_record"
+
+        />
+
+    <View
+        android:id = "@+id/banner_keyguide_image_remind"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/banner_keyguide_text_record"
+        android:background = "@drawable/programguide_keyguide_background"
+        android:backgroundTint = "#00FF00"
+        />
+
+    <TextView
+        style="@style/ProgramGuide.Text.KeyGuide"
+        android:id = "@+id/banner_keyguide_text_remind"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/banner_keyguide_image_remind"
+        android:text = "@string/banner_av"
+
+        />
+
+    <View
+        android:id = "@+id/banner_keyguide_image_go_now"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/banner_keyguide_text_remind"
+        android:background = "@drawable/programguide_keyguide_background"
+        android:backgroundTint = "#FFEB3B"
+        />
+
+    <TextView
+        style="@style/ProgramGuide.Text.KeyGuide"
+        android:id = "@+id/banner_keyguide_text_go_now"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/banner_keyguide_image_go_now"
+        android:text = "@string/banner_fav"
+        />
+
+    <View
+        android:id = "@+id/plus_one_day"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        android:background = "@drawable/programguide_keyguide_background"
+        android:backgroundTint = "#152FC1"
+        app:layout_constraintStart_toEndOf="@id/banner_keyguide_text_go_now"
+        />
+
+    <TextView
+        android:id="@+id/plus_one_day_text"
+        style="@style/ProgramGuide.Text.KeyGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/plus_one_day"
+        android:text="@string/banner_lock"
+        />
+
+    <View
+        android:id="@+id/audio"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/plus_one_day_text"
+        android:background = "@drawable/ic_tab"
+        android:backgroundTint = "#FFFFFF"
+        />
+
+    <TextView
+        android:id="@+id/key_guide_av"
+        style="@style/ProgramGuide.Text.KeyGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text = "@string/audio_video"
+        app:layout_constraintStart_toEndOf="@id/audio"
+        />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

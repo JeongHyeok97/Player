@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <data>
+        <variable
+            name="categoryString"
+            type="String" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/category_layout"
+        android:layout_width="300dp"
+        android:layout_height="60dp"
+        xmlns:tools="http://schemas.android.com/tools">
+        <TextView
+            android:id="@+id/category_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-light"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:paddingStart="10dp"
+            android:background = "@drawable/list_item_default"
+            tools:text = "FRANCE 4K"
+            android:text = "@{categoryString}"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

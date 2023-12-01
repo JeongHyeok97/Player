@@ -1,32 +1,36 @@
 package com.gi.hybridplayer.db.repository
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.gi.hybridplayer.db.ChannelDatabase
-import com.gi.hybridplayer.db.PortalDatabase
 import com.gi.hybridplayer.db.dao.ChannelsDao
-import com.gi.hybridplayer.db.dao.PortalDao
 import com.gi.hybridplayer.model.Channel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 class TvRepository(context: Context) {
 
-    private val mChannelList: MutableMap<Long, Channel> = linkedMapOf()
+    private val mDBScope = CoroutineScope(Dispatchers.IO)
+
     private val mListHashMap: MutableMap<String, MutableList<Channel>> = linkedMapOf()
 
 
     companion object{
+        private var instance: TvRepository? = null
         fun getInstance(context: Context): TvRepository{
-            return TvRepository(context)
+            if (instance == null){
+                instance = TvRepository(context)
+            }
+            return instance!!
         }
     }
 
 
-    private val mContext:Context
     private val channelsDao: ChannelsDao by lazy {
         val database = ChannelDatabase.getDatabase(context)
         database.channelsDao()
     }
     init {
-        this.mContext = context
     }
 
     suspend fun insert(list:List<Channel>){
@@ -36,8 +40,22 @@ class TvRepository(context: Context) {
         channelsDao.clear()
     }
 
-    suspend fun getAllChannels(): List<Channel> {
+
+    suspend fun getChannels(): List<Channel> {
         return channelsDao.getChannels()
+    }
+
+    suspend fun getChannel(originalNetworkId: Long): Channel?{
+        return channelsDao.getChannel(originalNetworkId)
+    }
+
+    suspend fun findListByChannel(tvGenreId: String): List<Channel> {
+        return if (tvGenreId == "*"){
+            channelsDao.getChannels()
+        } else channelsDao.getGroup(tvGenreId)
+    }
+    suspend fun getFavoriteChannels(): List<Channel> {
+        return channelsDao.getFavoriteChannels()
     }
 
 
