@@ -4,11 +4,14 @@ package com.gi.hybridplayer
 
 import android.content.ComponentName
 import android.media.tv.TvInputInfo
+import android.media.tv.TvInputManager
 import android.net.Uri
 import android.os.Bundle
+import android.transition.TransitionManager
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.gi.hybridplayer.conf.ConnectManager
@@ -16,10 +19,7 @@ import com.gi.hybridplayer.databinding.ActivityTvBinding
 import com.gi.hybridplayer.db.repository.TvRepository
 import com.gi.hybridplayer.model.*
 import com.gi.hybridplayer.viewmodel.TvViewModel
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -33,7 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+import java.lang.RuntimeException
 
 
 class TvActivity : FragmentActivity() {
@@ -75,11 +75,13 @@ class TvActivity : FragmentActivity() {
         mConnectManager = ConnectManager(portal = mConnectedPortal)
         mTvViewModel = ViewModelProvider(this)[TvViewModel::class.java]
         mTvViewModel.currentChannel.observe(this){
-
             mCurrentChannel = it
             mBannerFragment.updateBanner(it)
             val url =it.videoUrl
             setVideoUrl(url!!)
+            backgroundSetupScope.launch {
+                mConnectManager.setLastId(it.originalNetworkId)
+            }
         }
         mTvViewModel.currentCategory.observe(this){
 
@@ -100,7 +102,7 @@ class TvActivity : FragmentActivity() {
             withContext(Dispatchers.Main){
                 mBannerFragment = BannerFragment()
                 mCategoryFragment = CategoryFragment(lastCategory.id, mCategoryMap.values.toList())
-                mChannelListFragment = ChannelListFragment()
+                mChannelListFragment = ChannelListFragment(lastCategory)
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.category_container, mCategoryFragment)
                     .replace(R.id.channel_container, mChannelListFragment)
@@ -159,6 +161,26 @@ class TvActivity : FragmentActivity() {
             .setLoadControl(loadControl)
             .setBandwidthMeter(bandwidthMeter)
             .build()
+        mTvPlayer?.addListener(object : Player.Listener{
+            override fun onPlayerError(error: PlaybackException) {
+                mTvPlayer?.prepare()
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                super.onPlaybackStateChanged(playbackState)
+                if (playbackState == Player.STATE_BUFFERING){
+                    mTvPlayer?.prepare()
+                }
+                if (playbackState == Player.STATE_ENDED){
+                    mTvPlayer?.prepare()
+                }
+                if (playbackState == Player.STATE_IDLE){
+
+                }
+
+            }
+
+        })
         mTvView.player = mTvPlayer
     }
 
@@ -225,7 +247,8 @@ class TvActivity : FragmentActivity() {
 
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN){
+        if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
+                keyCode == KeyEvent.KEYCODE_PAGE_UP || keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
             val list= mTvViewModel.currentCategory.value?.second!!
             var index = -1
             list.forEach {
@@ -233,7 +256,7 @@ class TvActivity : FragmentActivity() {
                     index = list.indexOf(it)
                 }
             }
-            if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP){
+            if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_PAGE_UP){
                 mCurrentChannel =
                     if (index<list.size-1){
                         list[index+1]
@@ -241,7 +264,7 @@ class TvActivity : FragmentActivity() {
                         list[0]
                     }
             }
-            else{
+            else if (keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
                 mCurrentChannel = if (index>0){
                     list[index-1]
                 }
@@ -250,23 +273,63 @@ class TvActivity : FragmentActivity() {
                 }
             }
             mBannerFragment.updateBanner(mCurrentChannel!!)
-
-
         }
         return super.onKeyDown(keyCode, event)
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP
-            || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN){
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            if (supportFragmentManager.backStackEntryCount>0){
+                supportFragmentManager.popBackStack()
+            }
+            else{
+                if (mCategoryFragment.view?.visibility == View.VISIBLE){
+                    hideCategory()
+                    mCategoryFragment.scrollLast(mCurrentChannel!!.genreId!!)
+                }
+                else if (isChannelListVisible()){
+                    hideChannelList()
+                    mCategoryFragment.scrollLast(mCurrentChannel!!.genreId!!)
+
+                }
+                /*else if (mNumberTuner.visibility == View.VISIBLE){
+                    numberHandler.removeCallbacksAndMessages(null)
+                    setChannelNumber(null)
+                }*/
+            }
+            return true
+        }
+        if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
+            keyCode == KeyEvent.KEYCODE_PAGE_UP || keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
             mTvViewModel.setCurrentChannel(mCurrentChannel)
         }
-        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
-
+        else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
+            if (mCategoryFragment.view?.visibility == View.INVISIBLE && isChannelListVisible()){
+                mCategoryFragment.view?.visibility = View.VISIBLE
+                setCategoryAnimator(false)
+                mCategoryFragment.view?.requestFocus()
+            }
         }
+        else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
+            if (mCategoryFragment.view?.visibility == View.VISIBLE){
+                hideCategory()
+            }
+        }
+        else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+            dPadCenterEvent()
+        }
+
         return super.onKeyUp(keyCode, event)
     }
+    private fun hideChannelList(){
+        mChannelListFragment.view?.visibility = View.INVISIBLE
+    }
 
+
+    fun hideCategory(){
+        setCategoryAnimator(true)
+        mCategoryFragment.view?.visibility = View.INVISIBLE
+    }
     fun getCategoryMap(): Map<String, Category> {
         return mCategoryMap
     }
@@ -287,4 +350,41 @@ class TvActivity : FragmentActivity() {
     fun isEpgVisible(): Boolean {
         return false
     }
+    private fun setCategoryAnimator(hidden: Boolean){
+        val parentLayout = activityTvBinding.tvRoot
+        val categoryId = R.id.category_container
+        val constraintSet = ConstraintSet()
+        try {
+            if (hidden){
+                constraintSet.clone(parentLayout)
+                constraintSet.clear(categoryId, ConstraintSet.START)
+                constraintSet.clear(categoryId, ConstraintSet.END)
+                constraintSet.connect(
+                    categoryId,
+                    ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                constraintSet.applyTo(parentLayout)
+            }
+            else{
+                constraintSet.clone(parentLayout)
+                constraintSet.clear(categoryId, ConstraintSet.START)
+                constraintSet.clear(categoryId, ConstraintSet.END)
+                constraintSet.connect(
+                    categoryId,
+                    ConstraintSet.START,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.START
+                )
+                TransitionManager.beginDelayedTransition(parentLayout)
+                constraintSet.applyTo(parentLayout)
+            }
+        }
+        catch (e: RuntimeException){
+            e.printStackTrace()
+        }
+
+    }
+
 }

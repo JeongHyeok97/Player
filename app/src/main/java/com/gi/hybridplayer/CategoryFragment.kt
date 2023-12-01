@@ -1,6 +1,8 @@
 package com.gi.hybridplayer
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.View.INVISIBLE
 import androidx.core.content.ContextCompat
@@ -24,6 +26,7 @@ class CategoryFragment(
     private lateinit var mTvRepository: TvRepository
     private val mCategoryAdapter: ArrayObjectAdapter
             = ArrayObjectAdapter(CategoryPresenter())
+    private val mHandler = Handler(Looper.getMainLooper())
     private lateinit var mViewModel: ChannelListViewModel
 
 
@@ -69,7 +72,9 @@ class CategoryFragment(
         }
         setOnItemViewSelectedListener { _, item, _, _ ->
             if (item is Category){
-                mViewModel.setSelectedCategory(item)
+                mHandler.removeCallbacksAndMessages(null)
+                mHandler.postDelayed({mViewModel.setSelectedCategory(item)
+                }, 750)
             }
         }
     }

@@ -7,6 +7,7 @@ import com.gi.hybridplayer.db.dao.ChannelsDao
 import com.gi.hybridplayer.model.Channel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class TvRepository(context: Context) {
 
@@ -25,12 +26,15 @@ class TvRepository(context: Context) {
         }
     }
 
-
     private val channelsDao: ChannelsDao by lazy {
         val database = ChannelDatabase.getDatabase(context)
         database.channelsDao()
     }
+    private var mCachedAllChannel = mutableListOf<Channel>()
     init {
+        mDBScope.launch {
+            mCachedAllChannel.addAll(channelsDao.getChannels())
+        }
     }
 
     suspend fun insert(list:List<Channel>){
@@ -51,7 +55,12 @@ class TvRepository(context: Context) {
 
     suspend fun findListByChannel(tvGenreId: String): List<Channel> {
         return if (tvGenreId == "*"){
-            channelsDao.getChannels()
+            if (mCachedAllChannel.isNotEmpty()){
+                mCachedAllChannel
+            }
+            else{
+                channelsDao.getChannels()
+            }
         } else channelsDao.getGroup(tvGenreId)
     }
     suspend fun getFavoriteChannels(): List<Channel> {

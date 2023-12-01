@@ -7,28 +7,36 @@ import android.os.Looper
 import android.view.Gravity
 import android.view.View
 import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.leanback.widget.*
+import com.gi.hybridplayer.db.repository.TvRepository
+import com.gi.hybridplayer.model.Category
 import com.gi.hybridplayer.model.Channel
 import com.gi.hybridplayer.view.ChannelListPresenter
 import com.gi.hybridplayer.view.SingleLineVerticalFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
-class ChannelListFragment()
+class ChannelListFragment(private val lastCategory: Category)
     : SingleLineVerticalFragment() {
 
 
     private val mChannelsAdapter = ArrayObjectAdapter(ChannelListPresenter())
-
+    private val viewUpdateHandler= Handler(Looper.getMainLooper())
     private lateinit var mTvActivity: TvActivity
 
-    private val mUpdateHandler: Handler = Handler(Looper.getMainLooper())
+    private val mScope = CoroutineScope(Dispatchers.Default)
     private var isFav: Boolean = false
     private var mGridView: VerticalGridView? = null
+    private lateinit var mRepository: TvRepository
 
 
     companion object{
@@ -39,6 +47,7 @@ class ChannelListFragment()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mTvActivity = activity as TvActivity
+        mRepository = TvRepository.getInstance(requireContext())
         onItemViewClickedListener = ChannelItemClickListener()
         setOnItemViewSelectedListener(ChannelItemSelectedListener())
         adapter = mChannelsAdapter
@@ -73,6 +82,8 @@ class ChannelListFragment()
     }
 
 
+
+
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -84,10 +95,21 @@ class ChannelListFragment()
                 .findFragmentById(R.id.category_container) as CategoryFragment
             val viewModel = categoryFragment.getViewModel()
             viewModel.selectedCategory.observe(viewLifecycleOwner){
-                view.visibility = INVISIBLE
-
-
+                mGridView?.visibility = INVISIBLE
+                mChannelsAdapter.clear()
+                viewUpdateHandler.removeCallbacksAndMessages(null)
+                mScope.launch {
+                    val list = mRepository.findListByChannel(it.id!!)
+                    viewUpdateHandler.post{
+                        mChannelsAdapter.addAll(0, list)
+                    }
+                    viewUpdateHandler.postDelayed(
+                        {mGridView?.visibility = VISIBLE},
+                        300)
+                }
             }
+            viewModel.setSelectedCategory(lastCategory)
+
 
 
 
@@ -144,5 +166,7 @@ class ChannelListFragment()
         }
 
     }
+
+
 
 }
