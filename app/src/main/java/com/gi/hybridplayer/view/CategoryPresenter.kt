@@ -1,10 +1,14 @@
 package com.gi.hybridplayer.view
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.leanback.widget.Presenter
 import com.gi.hybridplayer.databinding.ItemCategoryBinding
 import com.gi.hybridplayer.model.Category
+import com.gi.hybridplayer.model.DayWeek
+import com.gi.hybridplayer.model.Vod
+import com.gi.hybridplayer.model.VodCategory
 
 class CategoryPresenter: Presenter() {
 
@@ -29,20 +33,21 @@ class CategoryPresenter: Presenter() {
         : Presenter.ViewHolder(binding.root){
         fun onBind(item: Any?){
             when (item) {
+
                 is Category -> {
                     binding.categoryString = item.title
                 }
-                /*is VodCategory -> {
-                    binding.categoryText.text = item.categoryStr
+                is VodCategory -> {
+                    binding.categoryString = item.categoryStr
                 }
                 is Vod ->{
-                    binding.categoryText.text = item.name
+                    binding.categoryString = item.name
                 }
                 is DayWeek ->{
-                    binding.categoryText.text = item.humanDate
-                }*/
+                    binding.categoryString= item.humanDate
+                }
                 is String -> {
-                    binding.categoryText.text = item
+                    binding.categoryString = item
                 }
             }
         }

@@ -278,7 +278,7 @@ class PortalEditFragment(private var portal: Portal? = null) : Fragment(){
                 )
                 connectManager = ConnectManager(portal)
                 val profile = connectManager.getProfile()
-                if (profile.status == "2" || profile.message == "Authentication request"){
+                if (profile?.status == "2" || profile?.message == "Authentication request"){
                     if (!binding.checkBox.isChecked){
 
                         withContext(Dispatchers.Main){

@@ -1,9 +1,6 @@
 package com.gi.hybridplayer.db.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.gi.hybridplayer.model.Channel
 
 
@@ -37,5 +34,9 @@ interface ChannelsDao {
 
     @Query("SELECT * FROM channel WHERE isFavorite = 1")
     suspend fun getFavoriteChannels():List<Channel>
+
+
+    @Update
+    suspend fun update(channel: Channel)
 
 }

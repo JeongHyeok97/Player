@@ -13,8 +13,8 @@ import com.gi.hybridplayer.conf.ConnectManager
 import com.gi.hybridplayer.databinding.ActivityVodBinding
 import com.gi.hybridplayer.model.Portal
 import com.gi.hybridplayer.model.Profile
-import com.phoenix.phoenixplayer2.fragments.VodFragment
 import com.gi.hybridplayer.model.Vod
+import com.gi.hybridplayer.view.TextMatchDialog
 import com.gi.hybridplayer.viewmodel.VodViewModel
 import com.gi.hybridplayer.viewmodel.VodViewModelFactory
 
@@ -95,5 +95,12 @@ class VodActivity : FragmentActivity() {
             }
         }
     }
-
+    fun authentication(listener: TextMatchDialog.OnSuccessListener){
+        val password =profile.parentPassword
+        val dialog = TextMatchDialog(this, listener)
+        dialog.setContentView(R.layout.dialog_authentication)
+        dialog.setMainText(R.id.input_password)
+        dialog.setTargetText(password)
+        dialog.show()
+    }
 }

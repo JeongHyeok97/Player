@@ -19,6 +19,7 @@ import com.gi.hybridplayer.model.Category
 import com.gi.hybridplayer.model.Channel
 import com.gi.hybridplayer.view.ChannelListPresenter
 import com.gi.hybridplayer.view.SingleLineVerticalFragment
+import com.gi.hybridplayer.view.TextMatchDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -103,7 +104,16 @@ class ChannelListFragment(private val lastCategory: Category)
                     val list = mRepository.findListByChannel(it.id!!)
                     mCurrentChannels = list
                     viewUpdateHandler.post{
-                        mChannelsAdapter.addAll(0, list)
+                        if (it.censored == true){
+                            mTvActivity.authentication(object :TextMatchDialog.OnSuccessListener{
+                                override fun onSuccess() {
+                                    mChannelsAdapter.addAll(0, list)
+                                }
+                            })
+                        }
+                        else{
+                            mChannelsAdapter.addAll(0, list)
+                        }
                     }
                     viewUpdateHandler.postDelayed(
                         {mGridView?.visibility = VISIBLE},
@@ -111,47 +121,8 @@ class ChannelListFragment(private val lastCategory: Category)
                 }
             }
             viewModel.setSelectedCategory(lastCategory)
-
-
-
-
-
-//            val loadingBar = ProgressBar(requireContext())
-//            val lp = FrameLayout.LayoutParams(75, 75)
-//            lp.gravity = Gravity.CENTER
-//            loadingBar.layoutParams = lp
-//            view.addView(loadingBar)
-//            val noChannelsView = TextView(requireContext())
-//            val nLp = FrameLayout.LayoutParams(WRAP_CONTENT, 75)
-//            nLp.gravity = Gravity.CENTER
-//            noChannelsView.layoutParams = nLp
-//            noChannelsView.text = "No Channels Found"
-//            noChannelsView.textSize = 18F
-//            view.addView(noChannelsView)
-//            mTvActivity.mListViewModel.tmpChannels.observe(viewLifecycleOwner){
-//                noChannelsView.visibility = GONE
-//                mGridView?.visibility = INVISIBLE
-//                loadingBar.visibility = VISIBLE
-//                mChannelsAdapter.clear()
-//                mUpdateHandler.removeCallbacksAndMessages(null)
-//                if (it.isNotEmpty()){
-//                    mUpdateHandler.postDelayed(
-//                        {mChannelsAdapter.addAll(0, it)
-//                            mGridView?.visibility = VISIBLE
-//                            loadingBar.visibility = GONE
-//                        },
-//                        750)
-//                }
-//                else{
-//                    noChannelsView.visibility = VISIBLE
-//                    loadingBar.visibility = GONE
-//                }
-//            }
-
         }
 
-
-//        setChannelList()
     }
 
 

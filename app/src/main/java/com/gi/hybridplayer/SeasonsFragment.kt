@@ -8,7 +8,6 @@ import com.gi.hybridplayer.model.Vod
 import com.gi.hybridplayer.view.CategoryPresenter
 import com.gi.hybridplayer.view.SingleLineVerticalFragment
 import com.gi.hybridplayer.viewmodel.SeriesViewModel
-import com.phoenix.phoenixplayer2.components.SeriesActivity
 
 class SeasonsFragment : SingleLineVerticalFragment(){
 

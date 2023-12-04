@@ -26,7 +26,6 @@ import com.gi.hybridplayer.model.Portal
 import com.gi.hybridplayer.model.Vod
 import com.gi.hybridplayer.view.DetailCardPresenter
 import com.gi.hybridplayer.viewmodel.VodDetailsViewModel
-import com.phoenix.phoenixplayer2.components.SeriesActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

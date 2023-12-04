@@ -2,24 +2,33 @@
 
 package com.gi.hybridplayer
 
-import android.content.ComponentName
-import android.media.tv.TvInputInfo
-import android.media.tv.TvInputManager
+import android.app.AlertDialog
+import android.content.DialogInterface
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.transition.TransitionManager
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.View.VISIBLE
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
 import com.gi.hybridplayer.conf.ConnectManager
+import com.gi.hybridplayer.conf.DeviceManager
 import com.gi.hybridplayer.databinding.ActivityTvBinding
+import com.gi.hybridplayer.databinding.NumberTunerBinding
 import com.gi.hybridplayer.db.repository.TvRepository
 import com.gi.hybridplayer.model.*
+import com.gi.hybridplayer.view.BaseDialog
+import com.gi.hybridplayer.view.TextMatchDialog
 import com.gi.hybridplayer.viewmodel.TvViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
@@ -35,30 +44,36 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.lang.RuntimeException
+import java.io.File
 
 
 class TvActivity : FragmentActivity() {
 
 
+
     private lateinit var activityTvBinding: ActivityTvBinding
     private lateinit var mTvView: StyledPlayerView
+    private lateinit var mNumberTuner: NumberTunerBinding
     private var mTvPlayer: ExoPlayer? = null
     private lateinit var mRepository: TvRepository
     private lateinit var mConnectedPortal: Portal
     private lateinit var mConnectManager: ConnectManager
     private lateinit var mTvViewModel:TvViewModel
-    private lateinit var mInputId: String
+
     private val backgroundSetupScope = CoroutineScope(Dispatchers.IO)
     private var mProfile: Profile? = null
     private var mCategoryMap: Map<String, Category> = mutableMapOf()
     private var mCurrentChannel: Channel? = null
+    private var mCurrentCategory: List<Channel> = listOf()
 
     private lateinit var mBannerFragment:BannerFragment
     private lateinit var mChannelListFragment: ChannelListFragment
     private lateinit var mCategoryFragment: CategoryFragment
+    private lateinit var mEpgFragment: EPGFragment
     private var menuFragment: MenuFragment? = null
+    private var setup:Boolean = false
 
+    private val numberHandler: Handler = Handler(Looper.getMainLooper())
     companion object{
         private val TAG: String = TvActivity::class.java.name
     }
@@ -68,10 +83,11 @@ class TvActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
 
         AndroidThreeTen.init(this)
-        mInputId = getInputId()
+
         activityTvBinding = ActivityTvBinding.inflate(layoutInflater)
         setContentView(activityTvBinding.root)
         mTvView = activityTvBinding.tvView
+        mNumberTuner = activityTvBinding.numberTuner
         initPlayer()
         mRepository=TvRepository.getInstance(this@TvActivity)
         mConnectedPortal = intent.getSerializableExtra(Portal.PORTAL_INTENT_TAG) as Portal
@@ -80,14 +96,27 @@ class TvActivity : FragmentActivity() {
         mTvViewModel.currentChannel.observe(this){
             mCurrentChannel = it
             mBannerFragment.updateBanner(it)
-            val url =it.videoUrl
-            setVideoUrl(url!!)
-            backgroundSetupScope.launch {
-                mConnectManager.setLastId(it.originalNetworkId)
+            if (it.isLocked){
+                authentication(object : TextMatchDialog.OnSuccessListener{
+                    override fun onSuccess() {
+                        val url =it.videoUrl
+                        setVideoUrl(url!!)
+                        backgroundSetupScope.launch {
+                            mConnectManager.setLastId(it.originalNetworkId)
+                        }
+                    }
+                })
+            }
+            else{
+                val url =it.videoUrl
+                setVideoUrl(url!!)
+                backgroundSetupScope.launch {
+                    mConnectManager.setLastId(it.originalNetworkId)
+                }
             }
         }
         mTvViewModel.currentCategory.observe(this){
-
+            mCurrentCategory = it.second
         }
         backgroundSetupScope.launch {
             mProfile = mConnectManager.getProfile()
@@ -106,14 +135,19 @@ class TvActivity : FragmentActivity() {
                 mBannerFragment = BannerFragment()
                 mCategoryFragment = CategoryFragment(lastCategory.id, mCategoryMap.values.toList())
                 mChannelListFragment = ChannelListFragment(lastCategory)
+                mEpgFragment = EPGFragment()
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.category_container, mCategoryFragment)
                     .replace(R.id.channel_container, mChannelListFragment)
                     .replace(R.id.banner_container, mBannerFragment)
+                    .replace(R.id.epg_container, mEpgFragment)
                     .commit()
+
                 supportFragmentManager.executePendingTransactions()
+                supportFragmentManager.beginTransaction().hide(mEpgFragment).commit()
                 mTvViewModel.setCurrentChannel(lastChannel)
                 mTvViewModel.setCurrentCategory(Pair(lastCategory, list))
+                setup = true
             }
         }
     }
@@ -127,19 +161,15 @@ class TvActivity : FragmentActivity() {
             supportFragmentManager.executePendingTransactions()
         }
         if (!isChannelListVisible()){
-            mChannelListFragment.requestFocus(mCurrentChannel)
-            mChannelListFragment.view?.visibility = View.VISIBLE
-            mChannelListFragment.view?.requestLayout()
-            mChannelListFragment.requestFocus(mCurrentChannel)
-            /*if (mNumberTuner.visibility == View.VISIBLE){
+            if (mNumberTuner.root.visibility == VISIBLE){
                 putNumber(0)
             }
             else{
                 mChannelListFragment.requestFocus(mCurrentChannel)
-                mChannelListFragment.view?.visibility = View.VISIBLE
+                mChannelListFragment.view?.visibility = VISIBLE
                 mChannelListFragment.view?.requestLayout()
                 mChannelListFragment.requestFocus(mCurrentChannel)
-            }*/
+            }
         }
     }
     private fun initPlayer(){
@@ -225,133 +255,308 @@ class TvActivity : FragmentActivity() {
             progressiveFactory.createMediaSource(mediaItem)
         }
     }
+    fun isTvRecording(): Boolean? {
+        return LiveDataSource.isRecording
+    }
+    fun setRecording(recording: Boolean){
+        val usbStorage = DeviceManager.getUsbStorage(this)
+        if (usbStorage != null){
+            val filePath = "${mCurrentChannel?.originalNetworkId}_${System.currentTimeMillis()}"
+            val file = File(usbStorage, filePath)
+            LiveDataSource.setRecording(recording, file)
+            mBannerFragment.setRecord(recording)
+        }
+        else{
+            Toast.makeText(this, resources.getString(R.string.recording_no_usb), Toast.LENGTH_LONG).show()
+        }
+
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        if (mTvPlayer != null){
+            if (mCurrentChannel != null){
+//                tune(mCurrentChannel!!)
+                initPlayer()
+                mTvViewModel.setCurrentChannel(channel = mCurrentChannel)
+            }
+//            mTvPlayer?.prepare()
+        }
+        backgroundSetupScope.launch {
+            try {
+                mProfile = mConnectManager.getProfile()
+            }
+            catch (e: Exception){
+                e.printStackTrace()
+            }
+        }
+    }
 
     override fun onResume() {
         super.onResume()
         if (mTvPlayer != null){
-            mTvPlayer?.prepare()
+            if (mCurrentChannel != null){
+//                tune(mCurrentChannel!!)
+                initPlayer()
+                mTvViewModel.setCurrentChannel(channel = mCurrentChannel)
+            }
+//            mTvPlayer?.prepare()
+        }
+        backgroundSetupScope.launch {
+            try {
+                mProfile = mConnectManager.getProfile()
+            }
+            catch (e: Exception){
+                e.printStackTrace()
+            }
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        mTvPlayer?.setVideoSurface(null)
+    override fun onPause() {
+        super.onPause()
         mTvPlayer?.stop()
         mTvPlayer?.release()
     }
 
-    private fun getInputId():String{
-        val componentName = ComponentName(this.packageName, InputService::class.java.name)
-        val builder: TvInputInfo.Builder = TvInputInfo.Builder(this, componentName)
-        val tvInputInfo: TvInputInfo = builder.build()
-        val intent = tvInputInfo.createSetupIntent()
-        return intent.getStringExtra(TvInputInfo.EXTRA_INPUT_ID)!!
+
+    override fun onStop() {
+        super.onStop()
+//        mTvPlayer?.setVideoSurface(null)
+        mTvPlayer?.stop()
+        mTvPlayer?.release()
     }
 
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
-                keyCode == KeyEvent.KEYCODE_PAGE_UP || keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
-            val list= mTvViewModel.currentCategory.value?.second!!
-            var index = -1
-            list.forEach {
-                if (it.originalNetworkId == mCurrentChannel?.originalNetworkId){
-                    index = list.indexOf(it)
-                }
-            }
-            if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_PAGE_UP){
-                mCurrentChannel =
-                    if (index<list.size-1){
-                        list[index+1]
-                    } else{
-                        list[0]
+//        Toast.makeText(this, "$keyCode -> $event", Toast.LENGTH_SHORT).show()
+        if (setup){
+            if (isTvRecording() == false){
+                if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
+                    keyCode == KeyEvent.KEYCODE_PAGE_UP || keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
+                    val list= mTvViewModel.currentCategory.value?.second!!
+                    var index = -1
+                    list.forEach {
+                        if (it.originalNetworkId == mCurrentChannel?.originalNetworkId){
+                            index = list.indexOf(it)
+                        }
                     }
-            }
-            else if (keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
-                mCurrentChannel = if (index>0){
-                    list[index-1]
+                    if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_PAGE_UP){
+                        mCurrentChannel =
+                            if (index<list.size-1){
+                                list[index+1]
+                            } else{
+                                list[0]
+                            }
+                    }
+                    else if (keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
+                        mCurrentChannel = if (index>0){
+                            list[index-1]
+                        }
+                        else{
+                            list[list.size-1]
+                        }
+                    }
+                    mBannerFragment.updateBanner(mCurrentChannel!!)
                 }
-                else{
-                    list[list.size-1]
-                }
             }
-            mBannerFragment.updateBanner(mCurrentChannel!!)
+            else{
+
+            }
+
         }
+
         return super.onKeyDown(keyCode, event)
     }
 
+    fun authentication(listener: TextMatchDialog.OnSuccessListener){
+        val dialog = TextMatchDialog(this, listener)
+        dialog.setContentView(R.layout.dialog_authentication)
+        dialog.setMainText(R.id.input_password)
+        dialog.setTargetText(mProfile?.parentPassword)
+        dialog.show()
+    }
+
+
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK){
-            if (supportFragmentManager.backStackEntryCount>0){
-                supportFragmentManager.popBackStack()
+//        Toast.makeText(this, "$event", Toast.LENGTH_LONG).show()
+        if (mEpgFragment.isHidden){
+            if (keyCode == KeyEvent.KEYCODE_BACK){
+                if (supportFragmentManager.backStackEntryCount>0){
+                    supportFragmentManager.popBackStack()
+                }
+                else{
+                    if (mCategoryFragment.view?.visibility == View.VISIBLE){
+                        hideCategory()
+                        mCategoryFragment.scrollLast(mCurrentChannel!!.genreId!!)
+                    }
+                    else if (isChannelListVisible()){
+                        hideChannelList()
+                        mCategoryFragment.scrollLast(mCurrentChannel!!.genreId!!)
+                    }
+                    /*else if (mNumberTuner.visibility == View.VISIBLE){
+                        numberHandler.removeCallbacksAndMessages(null)
+                        setChannelNumber(null)
+                    }*/
+                }
+                return true
             }
-            else{
+            if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
+                keyCode == KeyEvent.KEYCODE_PAGE_UP || keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
+                mTvViewModel.setCurrentChannel(mCurrentChannel)
+            }
+            else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
+                if (mCategoryFragment.view?.visibility == View.INVISIBLE && isChannelListVisible()){
+                    mCategoryFragment.view?.visibility = View.VISIBLE
+                    setCategoryAnimator(false)
+                    mCategoryFragment.view?.requestFocus()
+                }
+            }
+            else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
                 if (mCategoryFragment.view?.visibility == View.VISIBLE){
                     hideCategory()
-                    mCategoryFragment.scrollLast(mCurrentChannel!!.genreId!!)
                 }
-                else if (isChannelListVisible()){
-                    hideChannelList()
-                    mCategoryFragment.scrollLast(mCurrentChannel!!.genreId!!)
-                }
-                /*else if (mNumberTuner.visibility == View.VISIBLE){
-                    numberHandler.removeCallbacksAndMessages(null)
-                    setChannelNumber(null)
-                }*/
             }
-            return true
-        }
-        if (keyCode == KeyEvent.KEYCODE_CHANNEL_UP || keyCode == KeyEvent.KEYCODE_CHANNEL_DOWN ||
-            keyCode == KeyEvent.KEYCODE_PAGE_UP || keyCode == KeyEvent.KEYCODE_PAGE_DOWN){
-            mTvViewModel.setCurrentChannel(mCurrentChannel)
-        }
-        else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
-            if (mCategoryFragment.view?.visibility == View.INVISIBLE && isChannelListVisible()){
-                mCategoryFragment.view?.visibility = View.VISIBLE
-                setCategoryAnimator(false)
-                mCategoryFragment.view?.requestFocus()
-            }
-        }
-        else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
-            if (mCategoryFragment.view?.visibility == View.VISIBLE){
+            else if (keyCode == KeyEvent.KEYCODE_MENU){
                 hideCategory()
-            }
-        }
-        else if (keyCode == KeyEvent.KEYCODE_MENU){
-            hideCategory()
-            hideChannelList()
-            val fragmentManager = supportFragmentManager
-            val existingFragment = fragmentManager.findFragmentById(R.id.tv_root)
-            if (existingFragment !is MenuFragment) {
-                val transaction = fragmentManager.beginTransaction()
-                if (menuFragment == null) {
-                    menuFragment = MenuFragment(mConnectedPortal)
+                hideChannelList()
+                val fragmentManager = supportFragmentManager
+                val existingFragment = fragmentManager.findFragmentById(R.id.tv_root)
+                if (existingFragment !is MenuFragment) {
+                    val transaction = fragmentManager.beginTransaction()
+                    if (menuFragment == null) {
+                        menuFragment = MenuFragment(mConnectedPortal)
+                    }
+                    transaction.replace(R.id.tv_root, menuFragment!!)
+                        .addToBackStack(null)
+                        .commit()
                 }
-                transaction.replace(R.id.tv_root, menuFragment!!)
-                    .addToBackStack(null)
-                    .commit()
             }
-        }
-        else if (keyCode == KeyEvent.KEYCODE_INFO){
-            if (isChannelListVisible()){
-                mChannelListFragment.view?.visibility = View.INVISIBLE
-                mChannelListFragment.view?.requestLayout()
-                hideCategory()
-            }
-            val transaction: FragmentTransaction =
-                if (mBannerFragment.isHidden){
-                    supportFragmentManager.beginTransaction().show(mBannerFragment)
-                } else{
-                    supportFragmentManager.beginTransaction().hide(mBannerFragment)
+            else if (keyCode == KeyEvent.KEYCODE_INFO || (keyCode == KeyEvent.KEYCODE_UNKNOWN && event?.scanCode == 358)){
+                if (isChannelListVisible()){
+                    mChannelListFragment.view?.visibility = View.INVISIBLE
+                    mChannelListFragment.view?.requestLayout()
+                    hideCategory()
                 }
-            transaction.commitNow()
-        }
-        else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
-            dPadCenterEvent()
-        }
+                val transaction: FragmentTransaction =
+                    if (mBannerFragment.isHidden){
+                        supportFragmentManager.beginTransaction().show(mBannerFragment)
+                    } else{
+                        supportFragmentManager.beginTransaction().hide(mBannerFragment)
+                    }
+                transaction.commitNow()
+            }
+            else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
+                dPadCenterEvent()
+            }
+            else if (keyCode == KeyEvent.KEYCODE_GUIDE || (keyCode == KeyEvent.KEYCODE_UNKNOWN && event?.scanCode == 365)){
+                mEpgFragment.scrollToChannelWithId(mCurrentChannel?.originalNetworkId.toString())
+                supportFragmentManager.beginTransaction()
+                    .hide(mBannerFragment)
+                    .show(mEpgFragment).commit()
+                activityTvBinding.epgContainer.visibility = VISIBLE
+                setTvViewScale(true)
+            }
+            else if (keyCode == KeyEvent.KEYCODE_PROG_YELLOW){
+                if (mCurrentChannel != null){
+                    mCurrentChannel?.isFavorite = mCurrentChannel?.isFavorite == false
+                    mBannerFragment.setFavorite(mCurrentChannel?.isFavorite!!)
+                    backgroundSetupScope.launch {
+                        mRepository.updateChannel(mCurrentChannel!!)
+                        val favoriteChannels = mRepository.getFavoriteChannels()
+                        val idList = mutableListOf<Long>()
+                        favoriteChannels.forEach {
+                            idList.add(it.originalNetworkId!!)
+                        }
+                        mConnectManager.setFav(idList)
+                    }
+                }
 
+            }
+            else if (keyCode == KeyEvent.KEYCODE_PROG_GREEN){
+                if (!mBannerFragment.isHidden){
+                    val intent = Intent(this, SingleEpgActivity::class.java)
+                    intent.putExtra(Portal.PORTAL_INTENT_TAG, mConnectedPortal)
+                    intent.putExtra(Channel.CHANNEL_INTENT_TAG, mCurrentChannel?.originalNetworkId!!)
+                    startActivity(intent)
+                }
+            }
+            else if (keyCode == KeyEvent.KEYCODE_PROG_RED){
+                if (isTvRecording() == true){
+                    setRecording(false)
+                }
+                else{
+                    setRecording(true)
+                }
+            }
+            else if (keyCode == KeyEvent.KEYCODE_PROG_BLUE){
+                if (mCurrentChannel?.isLocked == true){
+                    authentication(object :TextMatchDialog.OnSuccessListener{
+                        override fun onSuccess() {
+                            mCurrentChannel?.isLocked = false
+                            mBannerFragment.setLock(false)
+                            backgroundSetupScope.launch {
+                                mRepository.updateChannel(mCurrentChannel!!)
+                            }
+                        }
+                    })
+                }
+                else{
+                    setLock()
+                }
+            }
+            else if (keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9){
+
+                if (!isChannelListVisible()){
+                    numberHandler.removeCallbacksAndMessages(null)
+                    mNumberTuner.root.requestFocus()
+                    val inputNumber: String = (keyCode - 7).toString()
+                    if (mNumberTuner.root.visibility == View.GONE && mNumberTuner.tunerDisplayNumber.text == ""){
+                        mNumberTuner.root.visibility = VISIBLE
+                        mNumberTuner.tunerDisplayNumber.text = inputNumber
+                        putNumber(3000)
+                    }
+                    else if (mNumberTuner.root.visibility == VISIBLE && mNumberTuner.tunerDisplayNumber.text != ""){
+                        if (mNumberTuner.tunerDisplayNumber.text != "0"){
+                            val n = mNumberTuner.tunerDisplayNumber.text.toString() + inputNumber
+                            mNumberTuner.tunerDisplayNumber.text = n
+                            putNumber(3000)
+                        }
+                        else{
+                            setChannelNumber(null)
+                        }
+                    }
+                }
+            }
+        }
+        else{
+            if (keyCode == KeyEvent.KEYCODE_BACK ||
+                keyCode == KeyEvent.KEYCODE_GUIDE ||
+                (keyCode == KeyEvent.KEYCODE_UNKNOWN && event?.scanCode == 365)){
+                supportFragmentManager.beginTransaction().hide(mEpgFragment).commit()
+                setTvViewScale(false)
+                return true
+            }
+            else if (keyCode == KeyEvent.KEYCODE_PROG_YELLOW){
+                mEpgFragment.autoScrollToBestProgramme()
+            }
+            else if (keyCode == KeyEvent.KEYCODE_PROG_GREEN){
+                mEpgFragment.requestRemind()
+            }
+            else if (keyCode == KeyEvent.KEYCODE_PROG_RED){
+                mEpgFragment.requestRecord()
+            }
+        }
         return super.onKeyUp(keyCode, event)
     }
+
+    private fun setLock() {
+        mCurrentChannel?.isLocked = true
+        mBannerFragment.setLock(true)
+        backgroundSetupScope.launch {
+            mRepository.updateChannel(mCurrentChannel!!)
+        }
+    }
+
     private fun hideChannelList(){
         mChannelListFragment.view?.visibility = View.INVISIBLE
     }
@@ -377,13 +582,30 @@ class TvActivity : FragmentActivity() {
     }
 
     fun tune(channel:Channel, list: List<Channel>?){
-        if (channel != mCurrentChannel){
-            mTvViewModel.setCurrentChannel(channel)
-            if (list != null){
-                val category = mCategoryMap[channel.genreId]
-                if (category is Category)
-                    mTvViewModel.setCurrentCategory(Pair(category, list))
+        if (isTvRecording() == true){
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("Stop Recording?")
+                .setMessage("Do you want to stop recording?")
+                .setPositiveButton("OK "
+                ) { _, _ ->
+                    setRecording(false)
+                    tune(channel, list)
+                }
+                .create()
+            dialog.show()
+            Handler().postDelayed({dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick()},
+                5000)
+        }
+        else{
+            if (channel != mCurrentChannel){
+                mTvViewModel.setCurrentChannel(channel)
+                if (list != null){
+                    val category = mCategoryMap[channel.genreId]
+                    if (category is Category)
+                        mTvViewModel.setCurrentCategory(Pair(category, list))
+                }
             }
+
         }
     }
 
@@ -428,15 +650,25 @@ class TvActivity : FragmentActivity() {
     }
 
     fun exit() {
-
+        val exitDialog = BaseDialog(this)
+        exitDialog.setContentView(R.layout.exit_layout)
+        exitDialog.setNegativeButton(R.id.frmNo
+        ) {
+            exitDialog.dismiss()
+        }
+        exitDialog.setNegativeButton(R.id.frmOk){
+            exitDialog.dismiss()
+            finishAndRemoveTask()
+        }
+        exitDialog.show()
     }
 
     fun updateEpgFragment(channel: Channel, schedule: ProgramGuideSchedule<Program>) {
-
+        mEpgFragment.update(channel, schedule)
     }
 
-    fun record(originalNetworkId: Long) {
-
+    fun record() {
+        setRecording(true)
     }
 
     fun getConnectManager():ConnectManager{
@@ -445,5 +677,67 @@ class TvActivity : FragmentActivity() {
     fun getTvViewModel(): TvViewModel {
         return mTvViewModel
     }
+    private fun setTvViewScale(isHidden: Boolean) {
+        val layoutParams = activityTvBinding.tvView.layoutParams as ConstraintLayout.LayoutParams
+        if (isHidden) {
+            layoutParams.width = resources.getDimensionPixelSize(R.dimen.tv_view_scaled_width)
+            layoutParams.height = resources.getDimensionPixelSize(R.dimen.tv_view_scaled_height)
+            layoutParams.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+            layoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            layoutParams.leftMargin =
+                resources.getDimensionPixelSize(R.dimen.tv_view_scaled_margin_left)
+            layoutParams.topMargin =
+                resources.getDimensionPixelSize(R.dimen.tv_view_scaled_margin_top)
+            activityTvBinding.bannerContainer.visibility = View.GONE
+            activityTvBinding.categoryContainer.visibility = View.GONE
+            activityTvBinding.channelContainer.visibility = View.GONE
+        } else {
+            supportFragmentManager.beginTransaction().hide(mEpgFragment).commit()
+            layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+            layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            layoutParams.leftMargin = 0
+            layoutParams.topMargin = 0
+            activityTvBinding.bannerContainer.visibility = View.VISIBLE
+            activityTvBinding.categoryContainer.visibility = View.VISIBLE
+            activityTvBinding.channelContainer.visibility = View.VISIBLE
+        }
+        activityTvBinding.tvView.layoutParams = layoutParams
+    }
+    private fun setChannelNumber(selectChannel: Channel?){
+        mNumberTuner.root.visibility = View.GONE
+        mNumberTuner.tunerDisplayNumber.text = ""
+        mNumberTuner.tunerDisplayChannel.text = ""
+        mNumberTuner.root.requestLayout()
+        if (selectChannel != null){
+            if (selectChannel.id != mCurrentChannel?.id){
+                tune(selectChannel)
+            }
+        }
+    }
 
+    private fun putNumber(delay: Long){
+        val channelNumber = mNumberTuner.tunerDisplayNumber.text.toString()
+        val currentChannels = mCurrentCategory
+        var selectChannel: Channel? = null
+        currentChannels.forEach {
+            if (it.displayNumber == channelNumber){
+                selectChannel = it
+            }
+        }
+        if (selectChannel != null){
+            mNumberTuner.tunerDisplayChannel.text = selectChannel?.displayName
+        }
+        else{
+            mNumberTuner.tunerDisplayChannel.text = ""
+        }
+        if (delay>0){
+            numberHandler.postDelayed({
+                setChannelNumber(selectChannel)
+            }, delay)
+        }
+        else{
+            setChannelNumber(selectChannel)
+        }
+
+    }
 }

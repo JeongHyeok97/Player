@@ -86,7 +86,8 @@ class Scheduler(context: Context) {
                 "Recording"
             }
 
-            val message = "Would you like to go to channel ${channel.displayName}($originalTimes) that you reserved?"
+            val message = "Would you like to go to channel ${channel.displayName}" +
+                    "($originalTimes) that you reserved?"
             val dialog = AlertDialog.Builder(mRoot)
                 .setTitle(title)
                 .setMessage(message)
@@ -94,7 +95,7 @@ class Scheduler(context: Context) {
                     try {
                         mRoot.tune(channel = channel)
                         if (isRecord == true) {
-                            mRoot.record(channel.originalNetworkId!!)
+                            mRoot.record()
                         }
                         schedule.setScheduled(false)
                         schedule.setScheduleType(-1)

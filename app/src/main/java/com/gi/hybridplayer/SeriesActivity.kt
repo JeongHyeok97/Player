@@ -1,11 +1,8 @@
-package com.phoenix.phoenixplayer2.components
+package com.gi.hybridplayer
 
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
-import com.gi.hybridplayer.R
-import com.gi.hybridplayer.SeasonsFragment
-import com.gi.hybridplayer.SeriesListFragment
 import com.gi.hybridplayer.model.Episode
 import com.gi.hybridplayer.model.Playback
 import com.gi.hybridplayer.viewmodel.SeriesViewModel

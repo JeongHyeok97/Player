@@ -127,7 +127,7 @@ class EPGFragment
 
 
 
-    private suspend fun updatePrograms(startUtcMillis: Long, endUtcMillis: Long) {
+    private fun updatePrograms(startUtcMillis: Long, endUtcMillis: Long) {
         val iterator = CopyOnWriteArrayList(mChannels)
         iterator.forEach { channel->
             if (channel is Channel){
@@ -157,6 +157,10 @@ class EPGFragment
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        getProgramHandler.removeCallbacksAndMessages(null)
+    }
 
 
     override fun autoScrollToBestProgramme(
@@ -228,7 +232,9 @@ class EPGFragment
             mCoroutineScope.launch {
                 val channel = mTvRepository.getChannel(mSelectedSchedule?.id!!)
                 if (channel != null) {
-                   mRootActivity.tune(channel)
+                    withContext(Dispatchers.Main){
+                        mRootActivity.tune(channel)
+                    }
                 }
             }
 

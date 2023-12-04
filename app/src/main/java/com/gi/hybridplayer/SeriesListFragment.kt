@@ -17,7 +17,6 @@ import com.gi.hybridplayer.model.Playback
 import com.gi.hybridplayer.model.Vod
 import com.gi.hybridplayer.view.SeriesItemPresenter
 import com.gi.hybridplayer.view.SingleLineVerticalFragment
-import com.phoenix.phoenixplayer2.components.SeriesActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

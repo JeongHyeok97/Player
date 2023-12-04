@@ -34,7 +34,10 @@ class LoadFragment(private var selectedPortal: Portal): Fragment(), TvDataManage
             withContext(Dispatchers.Main){
                 onStarted()
             }
-            dataManager.insert(channelsData, this@LoadFragment)
+            val blockedChannel = connectManager.getBlockedChannels()
+            dataManager.insertAllChannels(channelsData,
+                blockedChannel,
+                this@LoadFragment)
 //            context?.let { context ->
 //                try {
 //                    )}

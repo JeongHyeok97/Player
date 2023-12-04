@@ -56,21 +56,24 @@ class TvRepository(context: Context) {
     }
 
     suspend fun findListByChannel(tvGenreId: String): List<Channel> {
-        return if (tvGenreId == "*"){
-            if (mCachedAllChannel.isNotEmpty()){
-                mCachedAllChannel
+        return when (tvGenreId) {
+            "*" -> {
+                mCachedAllChannel.ifEmpty {
+                    channelsDao.getChannels()
+                }
             }
-            else{
-                channelsDao.getChannels()
+            FAVORITE_ID -> {
+                getFavoriteChannels()
             }
+            else -> channelsDao.getGroup(tvGenreId)
         }
-        else if (tvGenreId == FAVORITE_ID){
-            getFavoriteChannels()
-        }
-        else channelsDao.getGroup(tvGenreId)
     }
     suspend fun getFavoriteChannels(): List<Channel> {
         return channelsDao.getFavoriteChannels()
+    }
+
+    suspend fun updateChannel(channel: Channel){
+        channelsDao.update(channel)
     }
 
 

@@ -8,8 +8,10 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.View.*
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.leanback.widget.ArrayObjectAdapter
 import com.gi.hybridplayer.SimplePlaybackActivity.SimplePlayback.SIMPLE_PLAYBACK_BUNDLE
 import com.gi.hybridplayer.SimplePlaybackActivity.SimplePlayback.SIMPLE_PLAYBACK_SUBTITLE
@@ -20,7 +22,6 @@ import com.gi.hybridplayer.model.SingleEpg
 import com.gi.hybridplayer.view.SingleEpgPresenter
 import com.gi.hybridplayer.view.SingleLineVerticalFragment
 import com.gi.hybridplayer.viewmodel.SingleEpgViewModel
-import com.phoenix.phoenixplayer2.components.SingleEpgActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,6 +38,9 @@ class SingleEpgFragment : SingleLineVerticalFragment(){
     private val mConnectScope = CoroutineScope(Dispatchers.IO)
     private var mCurrentPage : Int? = -1
 
+    companion object{
+        private val TAG = SingleEpgFragment::class.java.name
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +56,6 @@ class SingleEpgFragment : SingleLineVerticalFragment(){
                         val url = mConnectManager.createLink(type = ConnectManager.TYPE_TV_ARCHIVE,
                             cmd = item.getCmd()!!)
                         val title = item.name!!
-                        Log.e("SingleEpg ", "$url")
                         val subtitle = "${item.tTime} - ${item.tTimeTo}"
                         withContext(Dispatchers.Main){
                             val intent = Intent(requireActivity(), SimplePlaybackActivity::class.java)
@@ -88,14 +91,12 @@ class SingleEpgFragment : SingleLineVerticalFragment(){
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mLoading = ProgressBar(requireContext())
-        val lp: FrameLayout.LayoutParams = FrameLayout.LayoutParams(100, 100)
-        lp.gravity = Gravity.CENTER
-        mLoading?.layoutParams = lp
-        val rootView = view as FrameLayout
-        rootView.addView(mLoading)
+        val dataNotification = mRootActivity.findViewById<FrameLayout>(R.id.data_notification)
+        val noData: TextView = dataNotification.findViewById(R.id.no_data)
+        mLoading = dataNotification.findViewById(R.id.loading)
         mViewModel.day.observe(viewLifecycleOwner){
             mLoading?.visibility = VISIBLE
+            noData.visibility = INVISIBLE
             mAdapter.clear()
             handler.removeCallbacksAndMessages(null)
             val selectedDay = it
@@ -103,10 +104,14 @@ class SingleEpgFragment : SingleLineVerticalFragment(){
                 if (it != null){
                     view.visibility = INVISIBLE
                     startLoading()
-                    val data = mConnectManager.getSingleEpgData(mRootActivity.getCurrentChannelId(),
+                    val id= mRootActivity.getCurrentChannelId()
+                    val data = mConnectManager.getSingleEpgData(id,
                         it.sqlDate!!,
                         1)
                     handler.postDelayed({
+                        if (data.isEmpty()){
+                            noData.visibility = VISIBLE
+                        }
                         if (it.sqlDate == selectedDay.sqlDate){
                             mAdapter.addAll(0, data)
                         }

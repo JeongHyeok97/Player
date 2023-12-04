@@ -9,6 +9,7 @@ import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
 import com.gi.hybridplayer.R
 import com.gi.hybridplayer.databinding.ItemCardViewBinding
+import com.gi.hybridplayer.model.RecordedProgram
 import com.gi.hybridplayer.model.Vod
 import java.util.*
 
@@ -54,18 +55,18 @@ class VodCardPresenter : Presenter(){
                     binding.playedProgress.visibility = GONE
                 }
             }
-//            else if (item is RecordedProgram){
-//                binding.vodTitle.text = item.title
-//                val desc = "~${convertMillisToTimeString(item.endTimeMillis!!)}"
-//                binding.vodDesc.text =  desc
-//                val duration = formatSecondsToHHmm(item.duration?.div(1000)?.toInt()!!)
-//                binding.vodAdded.text = duration
-//                Glide.with(context)
-//                    .load(item.channelLogo)
-//                    .error(ContextCompat.getDrawable(context, R.drawable.ic_dvr))
-//                    .placeholder(ContextCompat.getDrawable(context, R.drawable.ic_dvr))
-//                    .into(binding.vodCardMainImage)
-//            }
+            else if (item is RecordedProgram){
+                binding.vodTitle.text = item.title
+                val desc = "${convertMillisToTimeString(item.startTimeMillis!!)}~"
+                binding.vodDesc.text =  desc
+                val duration = formatSecondsToHHmm(item.duration?.div(1000)?.toInt()!!)
+                binding.vodAdded.text = duration
+                Glide.with(context)
+                    .load(item.channelLogo)
+                    .error(ContextCompat.getDrawable(context, R.drawable.ic_dvr))
+                    .placeholder(ContextCompat.getDrawable(context, R.drawable.ic_dvr))
+                    .into(binding.vodCardMainImage)
+            }
         }
         fun formatSecondsToHHmm(seconds: Int): String {
             val hours = seconds / 3600

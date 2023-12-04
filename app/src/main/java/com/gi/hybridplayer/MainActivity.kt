@@ -14,6 +14,7 @@ import com.gi.hybridplayer.conf.DeviceManager
 import com.gi.hybridplayer.conf.Server
 import com.gi.hybridplayer.databinding.ActivityMainBinding
 import com.gi.hybridplayer.db.repository.PortalRepository
+import com.gi.hybridplayer.model.Menu
 import com.gi.hybridplayer.model.Portal
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -33,15 +34,26 @@ class MainActivity : FragmentActivity(){
         super.onCreate(savedInstanceState)
         mainActivityBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mainActivityBinding.root)
-        mBackgroundScope.launch {
-            val mac = DeviceManager.getMacAddress()
-            withContext(Dispatchers.Main){
-                val macView = findViewById<TextView>(R.id.mac_address)
-                val macAddress = "MAC : $mac"
-                macView.text = macAddress
-                macView.visibility = View.VISIBLE
+        mRepository = PortalRepository(this)
+
+        if (intent.getStringExtra(Menu.TAG_PORTAL) == null){
+            mBackgroundScope.launch {
+                val mac = DeviceManager.getMacAddress()
+                withContext(Dispatchers.Main){
+                    val macView = findViewById<TextView>(R.id.mac_address)
+                    val macAddress = "MAC : $mac"
+                    macView.text = macAddress
+                    macView.visibility = View.VISIBLE
+                }
+                isSupported(mac)
             }
-            isSupported(mac)
+        }
+        else{
+            val sfm = supportFragmentManager
+            sfm.beginTransaction()
+                .replace(R.id.portal_fragment, MainFragment())
+                .commit()
+
         }
     }
 
@@ -126,7 +138,6 @@ class MainActivity : FragmentActivity(){
             }
             else{
                 response.close()
-                mRepository = PortalRepository(this)
                 mBackgroundScope.launch {
                     val connectedPortal = mRepository.getConnectedPortal()
                     withContext(Dispatchers.Main){

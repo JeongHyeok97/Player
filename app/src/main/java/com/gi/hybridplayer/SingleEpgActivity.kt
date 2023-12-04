@@ -1,15 +1,13 @@
-package com.phoenix.phoenixplayer2.components
+package com.gi.hybridplayer
 
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
-import com.gi.hybridplayer.R
 import com.gi.hybridplayer.conf.ConnectManager
 import com.gi.hybridplayer.model.DayWeek
 import com.gi.hybridplayer.model.Portal
 import com.gi.hybridplayer.viewmodel.SingleEpgViewModel
-import com.gi.hybridplayer.SingleEpgFragment
 import com.gi.hybridplayer.model.Channel
 import com.phoenix.phoenixplayer2.fragments.WeekFragment
 import kotlinx.coroutines.CoroutineScope

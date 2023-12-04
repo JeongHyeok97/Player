@@ -7,7 +7,7 @@ import com.gi.hybridplayer.model.DayWeek
 import com.gi.hybridplayer.view.CategoryPresenter
 import com.gi.hybridplayer.view.SingleLineVerticalFragment
 import com.gi.hybridplayer.viewmodel.SingleEpgViewModel
-import com.phoenix.phoenixplayer2.components.SingleEpgActivity
+import com.gi.hybridplayer.SingleEpgActivity
 
 class WeekFragment: SingleLineVerticalFragment() {
     private lateinit var mRootActivity: SingleEpgActivity

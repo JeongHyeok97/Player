@@ -1,8 +1,12 @@
 package com.gi.hybridplayer
 
 import android.content.ComponentName
+import android.content.ContentProviderOperation
 import android.content.Context
+import android.content.OperationApplicationException
+import android.media.tv.TvContract
 import android.media.tv.TvInputInfo
+import android.os.RemoteException
 import android.util.Log
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,12 +36,13 @@ class TvDataManager(context: Context, portal: Portal) {
 
     }
 
-    suspend fun insert(data: String, stateListener:StateListener){
-        val inputId = getInputId()
+    suspend fun insertAllChannels(allChannelsData: String,
+                                  blockedChannelsData: List<Channel>,
+                                  stateListener:StateListener){
         val repository = TvRepository.getInstance(context = mContext)
         repository.clear()
         try {
-            val dataNode = objectMapper.readTree(data)[ConnectManager.NODE_JS][ConnectManager.NODE_DATA]
+            val dataNode = objectMapper.readTree(allChannelsData)[ConnectManager.NODE_JS][ConnectManager.NODE_DATA]
             val totalChannels = dataNode.size()
             val batchSize = 100
             for (startIndex in 0 until totalChannels step batchSize) {
@@ -50,7 +55,7 @@ class TvDataManager(context: Context, portal: Portal) {
                 for (i in startIndex until endIndex) {
                     val node = dataNode.get(i)
                     val channel = objectMapper.treeToValue(node, Channel::class.java)
-                    channel.inputId = inputId
+
                     channel.packageName = mContext.packageName
                     channelList.add(channel)
                 }
@@ -60,15 +65,10 @@ class TvDataManager(context: Context, portal: Portal) {
         catch (e:Exception){
             e.printStackTrace()
         }
+        repository.insert(blockedChannelsData)
         mPortal.connected = true
         stateListener.onConnect(portal = mPortal)
     }
 
-    private fun getInputId():String{
-        val componentName = ComponentName(mContext.packageName, InputService::class.java.name)
-        val builder: TvInputInfo.Builder = TvInputInfo.Builder(mContext, componentName)
-        val tvInputInfo: TvInputInfo = builder.build()
-        val intent = tvInputInfo.createSetupIntent()
-        return intent.getStringExtra(TvInputInfo.EXTRA_INPUT_ID)!!
-    }
+
 }

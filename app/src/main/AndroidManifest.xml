@@ -59,6 +59,22 @@
                 android:resource="@xml/tv_input" />
         </service>
         <activity android:name=".TvActivity"/>
+        <activity android:name=".VodActivity"/>
+        <activity android:name=".VodDetailsActivity"/>
+        <activity android:name=".PlaybackActivity"/>
+        <activity android:name=".SeriesActivity" />
+        <activity android:name=".SingleEpgActivity"/>
+        <activity android:name=".SimplePlaybackActivity"/>
+        <activity android:name=".RecordingsActivity"/>
+        <provider
+            android:authorities="${applicationId}.FileProvider"
+            android:name="androidx.core.content.FileProvider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
     </application>
 
 </manifest>

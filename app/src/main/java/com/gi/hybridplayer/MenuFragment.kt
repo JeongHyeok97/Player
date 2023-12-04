@@ -108,8 +108,8 @@ class MenuFragment(val portal: Portal): Fragment() {
                     startActivity(intent)
                 }
                 resources.getString(R.string.recordings) -> {
-//                    val intent = Intent(activity, RecordingsActivity::class.java)
-//                    startActivity(intent)
+                    val intent = Intent(activity, RecordingsActivity::class.java)
+                    startActivity(intent)
                 }
                 resources.getString(R.string.portal) -> {
                     val intent = Intent(activity, MainActivity::class.java)

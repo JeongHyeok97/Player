@@ -113,7 +113,7 @@ class VodViewModel
                     this@VodViewModel.vodList.value = Pair(censored!!, firstPage)
                 }
             }
-            catch (exception: NullPointerException){
+            catch (exception: Exception){
                 exception.printStackTrace()
             }
 

@@ -1,4 +1,4 @@
-package com.phoenix.phoenixplayer2.fragments
+package com.gi.hybridplayer
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,14 +10,12 @@ import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.FocusHighlight
 import androidx.leanback.widget.VerticalGridPresenter
 import androidx.leanback.widget.VerticalGridView
-import com.gi.hybridplayer.HistoryRepository
-import com.gi.hybridplayer.VodActivity
 import com.gi.hybridplayer.conf.ConnectManager
 import com.gi.hybridplayer.model.Portal
 import com.gi.hybridplayer.model.Vod
 import com.gi.hybridplayer.view.VodCardPresenter
 import com.gi.hybridplayer.viewmodel.VodViewModel
-import com.gi.hybridplayer.VodDetailsActivity
+import com.gi.hybridplayer.view.TextMatchDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -108,11 +106,22 @@ class VodFragment: VerticalGridSupportFragment() {
                     }
                 }
                 else{
-//                    rootActivity.supportFragmentManager
-//                        .beginTransaction()
-//                        .add(R.id.vod_root, ParentalControlFragment(ParentalControlFragment.AUTH_FOR_UNBLOCK_CATEGORY))
-//                        .addToBackStack(null)
-//                        .commit()
+                    rootActivity.authentication(object : TextMatchDialog.OnSuccessListener{
+                        override fun onSuccess() {
+                            it.forEach { vod ->
+                                CoroutineScope(Dispatchers.IO).launch{
+                                    mHistoryRepository.getHistory().forEach {
+                                        val vodId = vod.id?.toLongOrNull()
+                                        if (it.videoId == vodId) {
+                                            it.percent = ((it.endTime)/(vod.time?.toLong()!!*600)).toInt()
+                                            vod.history = it
+                                        }
+                                    }
+                                }
+                                mAdapter.add(vod)
+                            }
+                        }
+                    })
                 }
                 view.findViewById<VerticalGridView>(androidx.leanback.R.id.browse_grid).visibility = VISIBLE
                 rootActivity.setLoading(false)
@@ -133,14 +142,12 @@ class VodFragment: VerticalGridSupportFragment() {
                                 history.percent = ((history.endTime)/(vod.time?.toLong()!!*600)).toInt()
                                 vod.history = history
                             }
-
                         }
                     }
                     mAdapter.add(vod)
                 }
                 rootActivity.setLoading(false)
             }
-
         }
     }
 

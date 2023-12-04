@@ -2,7 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/single_epg_day"
         android:layout_width="300dp"
@@ -16,5 +17,35 @@
         app:layout_constraintStart_toEndOf="@id/single_epg_day"
         app:layout_constraintEnd_toEndOf="parent"
         />
+
+    <FrameLayout
+        android:id= "@+id/data_notification"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="@id/single_epg_program"
+        app:layout_constraintEnd_toEndOf="@id/single_epg_program"
+
+        >
+        <TextView
+            android:id="@+id/no_data"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity = "center"
+            android:text = "@string/no_data"
+            android:visibility="invisible"
+            android:textSize="28sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            tools:visibility = "visible"
+            >
+        </TextView>
+        <ProgressBar
+            android:id="@+id/loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="invisible"
+            />
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
