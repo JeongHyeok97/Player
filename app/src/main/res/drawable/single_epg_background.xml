@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="5dp" />
+            <!-- 상태가 selected 일 때의 배경 색 및 alpha 값을 설정 -->
+            <solid android:color="#4B4B64" />
+        </shape>
+    </item>
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="5dp" />
+            <!-- 상태가 focused 일 때의 배경 색 및 alpha 값을 설정 -->
+            <solid android:color="#4B4B64" />
+        </shape>
+    </item>
+    <!-- 기본 상태일 때의 배경 색 및 alpha 값을 설정 -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="5dp" />
+            <solid android:color="#80414150" />
+        </shape>
+    </item>
+</selector>

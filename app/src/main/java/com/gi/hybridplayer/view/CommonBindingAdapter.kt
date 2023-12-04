@@ -32,4 +32,14 @@ object CommonBindingAdapters{
             .apply(RequestOptions().fitCenter())
             .into(imageView)
     }
+    @BindingAdapter("app:drawable")
+    @JvmStatic fun loadDrawable(imageView: ImageView, drawable: Drawable){
+        val context = imageView.context
+
+        Glide.with(imageView.context)
+            .load(drawable)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .apply(RequestOptions().fitCenter())
+            .into(imageView)
+    }
 }

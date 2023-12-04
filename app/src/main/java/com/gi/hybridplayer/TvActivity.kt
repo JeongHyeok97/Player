@@ -13,7 +13,9 @@ import android.view.KeyEvent
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
 import com.gi.hybridplayer.conf.ConnectManager
 import com.gi.hybridplayer.databinding.ActivityTvBinding
 import com.gi.hybridplayer.db.repository.TvRepository
@@ -55,6 +57,7 @@ class TvActivity : FragmentActivity() {
     private lateinit var mBannerFragment:BannerFragment
     private lateinit var mChannelListFragment: ChannelListFragment
     private lateinit var mCategoryFragment: CategoryFragment
+    private var menuFragment: MenuFragment? = null
 
     companion object{
         private val TAG: String = TvActivity::class.java.name
@@ -90,7 +93,7 @@ class TvActivity : FragmentActivity() {
             mProfile = mConnectManager.getProfile()
             mConnectManager.doAuth(mConnectedPortal.user_ID, mConnectedPortal.user_PW)
             mProfile = mConnectManager.getProfile()
-            mCategoryMap = mConnectManager.getCategories().first
+            mCategoryMap = mConnectManager.getTvGenres().first
             val lastChannelId = mProfile?.lastItvId
             val lastChannel = if (lastChannelId != null && mRepository.getChannel(lastChannelId) != null){
                 mRepository.getChannel(lastChannelId)
@@ -290,7 +293,6 @@ class TvActivity : FragmentActivity() {
                 else if (isChannelListVisible()){
                     hideChannelList()
                     mCategoryFragment.scrollLast(mCurrentChannel!!.genreId!!)
-
                 }
                 /*else if (mNumberTuner.visibility == View.VISIBLE){
                     numberHandler.removeCallbacksAndMessages(null)
@@ -314,6 +316,35 @@ class TvActivity : FragmentActivity() {
             if (mCategoryFragment.view?.visibility == View.VISIBLE){
                 hideCategory()
             }
+        }
+        else if (keyCode == KeyEvent.KEYCODE_MENU){
+            hideCategory()
+            hideChannelList()
+            val fragmentManager = supportFragmentManager
+            val existingFragment = fragmentManager.findFragmentById(R.id.tv_root)
+            if (existingFragment !is MenuFragment) {
+                val transaction = fragmentManager.beginTransaction()
+                if (menuFragment == null) {
+                    menuFragment = MenuFragment(mConnectedPortal)
+                }
+                transaction.replace(R.id.tv_root, menuFragment!!)
+                    .addToBackStack(null)
+                    .commit()
+            }
+        }
+        else if (keyCode == KeyEvent.KEYCODE_INFO){
+            if (isChannelListVisible()){
+                mChannelListFragment.view?.visibility = View.INVISIBLE
+                mChannelListFragment.view?.requestLayout()
+                hideCategory()
+            }
+            val transaction: FragmentTransaction =
+                if (mBannerFragment.isHidden){
+                    supportFragmentManager.beginTransaction().show(mBannerFragment)
+                } else{
+                    supportFragmentManager.beginTransaction().hide(mBannerFragment)
+                }
+            transaction.commitNow()
         }
         else if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER){
             dPadCenterEvent()
@@ -341,9 +372,18 @@ class TvActivity : FragmentActivity() {
         return mConnectManager.getShortEpg(originalNetworkId)
     }
 
-    fun tune(channel:Channel){
+    fun tune(channel: Channel){
+        tune(channel, null)
+    }
+
+    fun tune(channel:Channel, list: List<Channel>?){
         if (channel != mCurrentChannel){
             mTvViewModel.setCurrentChannel(channel)
+            if (list != null){
+                val category = mCategoryMap[channel.genreId]
+                if (category is Category)
+                    mTvViewModel.setCurrentCategory(Pair(category, list))
+            }
         }
     }
 
@@ -385,6 +425,25 @@ class TvActivity : FragmentActivity() {
             e.printStackTrace()
         }
 
+    }
+
+    fun exit() {
+
+    }
+
+    fun updateEpgFragment(channel: Channel, schedule: ProgramGuideSchedule<Program>) {
+
+    }
+
+    fun record(originalNetworkId: Long) {
+
+    }
+
+    fun getConnectManager():ConnectManager{
+        return mConnectManager
+    }
+    fun getTvViewModel(): TvViewModel {
+        return mTvViewModel
     }
 
 }

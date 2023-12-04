@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data >
+        <variable
+            name="episode"
+            type="com.gi.hybridplayer.model.Episode" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width= "800dp"
+        android:layout_height = "216dp"
+        android:background="@drawable/series_card_background"
+        >
+        <ImageView
+            android:id="@+id/series_thumbnail"
+            android:layout_width="384dp"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@drawable/ic_tv"
+            />
+        <TextView
+            android:id = "@+id/series_title"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            app:layout_constraintStart_toEndOf="@id/series_thumbnail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/series_description"
+            android:text='@{episode.episodeNumber + "." + episode.title}'
+            style="@style/Style.Series"
+            tools:text="1화"
+            />
+
+        <TextView
+            android:id="@+id/series_description"
+            android:layout_width="0dp"
+            android:layout_height="108dp"
+            app:layout_constraintStart_toEndOf="@id/series_thumbnail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/series_thumbnail"
+            app:layout_constraintBottom_toBottomOf="@id/series_thumbnail"
+            style="@style/Style.Series"
+            android:text="@{episode.description == null? ` N/A ` : episode.description}"
+            android:maxLines = "3"
+            android:ellipsize = "end"
+            />
+
+
+        <TextView
+            android:id="@+id/series_duration"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            style="@style/Style.Series"
+            android:text='@{episode.duration.toString() + " min"}'
+            app:layout_constraintStart_toEndOf="@id/series_thumbnail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/series_description"
+            tools:text="1시간 30분"
+            android:textColor= "#99FFFFFF"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id = "@+id/vod_root"
+        >
+
+        <FrameLayout
+            android:id="@+id/vod_category_container"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="-100dp"
+            />
+
+        <FrameLayout
+            android:id="@+id/vod_item_container"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toEndOf="@id/vod_category_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            />
+
+        <ProgressBar
+            android:id="@+id/vod_loading"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:layout_constraintStart_toStartOf="@id/vod_item_container"
+            app:layout_constraintEnd_toEndOf="@id/vod_item_container"
+            app:layout_constraintTop_toTopOf="@id/vod_item_container"
+            app:layout_constraintBottom_toBottomOf="@id/vod_item_container"
+            android:visibility="gone"
+            tools:visibility="gone"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

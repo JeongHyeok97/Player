@@ -37,6 +37,7 @@ class ChannelListFragment(private val lastCategory: Category)
     private var isFav: Boolean = false
     private var mGridView: VerticalGridView? = null
     private lateinit var mRepository: TvRepository
+    private var mCurrentChannels = listOf<Channel>()
 
 
     companion object{
@@ -74,7 +75,7 @@ class ChannelListFragment(private val lastCategory: Category)
         ) {
             if (item != null){
                 if (item is Channel){
-                    mTvActivity.tune(item)
+                    mTvActivity.tune(item,mCurrentChannels)
                     view?.visibility = INVISIBLE
                 }
             }
@@ -100,6 +101,7 @@ class ChannelListFragment(private val lastCategory: Category)
                 viewUpdateHandler.removeCallbacksAndMessages(null)
                 mScope.launch {
                     val list = mRepository.findListByChannel(it.id!!)
+                    mCurrentChannels = list
                     viewUpdateHandler.post{
                         mChannelsAdapter.addAll(0, list)
                     }

@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.gi.hybridplayer.db.ChannelDatabase
 import com.gi.hybridplayer.db.dao.ChannelsDao
+import com.gi.hybridplayer.model.Category
+import com.gi.hybridplayer.model.Category.Companion.FAVORITE_ID
 import com.gi.hybridplayer.model.Channel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,7 +63,11 @@ class TvRepository(context: Context) {
             else{
                 channelsDao.getChannels()
             }
-        } else channelsDao.getGroup(tvGenreId)
+        }
+        else if (tvGenreId == FAVORITE_ID){
+            getFavoriteChannels()
+        }
+        else channelsDao.getGroup(tvGenreId)
     }
     suspend fun getFavoriteChannels(): List<Channel> {
         return channelsDao.getFavoriteChannels()

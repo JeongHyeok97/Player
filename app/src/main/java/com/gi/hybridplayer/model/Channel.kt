@@ -5,6 +5,7 @@ import android.text.SpannedString
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.egeniq.androidtvprogramguide.entity.ProgramGuideChannel
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
@@ -27,7 +28,7 @@ data class Channel(
     var isFavorite:Boolean = false,
     @JsonProperty("enable_tv_archive")
     var isEnableTvArchive:Boolean = false
-): /*ProgramGuideChannel, */Serializable {
+): ProgramGuideChannel, Serializable {
 
 
 
@@ -38,11 +39,13 @@ data class Channel(
     var packageName: String?= "com.gi.hybridplayer"
     var isLocked:Boolean = false
 
-
-//    override val chId: String
-//        get() = originalNetworkId.toString()
-//    override val name: Spanned
-//        get() = SpannedString(displayName)
-//    override val imageUrl: String?
-//        get() = logoUrl
+    companion object{
+        const val CHANNEL_INTENT_TAG = "intent_channel"
+    }
+    override val chId: String
+        get() = originalNetworkId.toString()
+    override val name: Spanned
+        get() = SpannedString(displayName)
+    override val imageUrl: String?
+        get() = logoUrl
 }
