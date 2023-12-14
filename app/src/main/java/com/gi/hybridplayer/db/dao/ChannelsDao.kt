@@ -6,7 +6,7 @@ import com.gi.hybridplayer.model.Channel
 
 @Dao
 interface ChannelsDao {
-    @Query("SELECT * FROM channel")
+    @Query("SELECT * FROM channel WHERE isLock = 0")
     suspend fun getChannels():List<Channel>
 
 

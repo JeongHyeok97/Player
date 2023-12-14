@@ -1,8 +1,11 @@
 package com.gi.hybridplayer
 
+import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
+import com.gi.hybridplayer.model.Portal
+import com.gi.hybridplayer.model.Profile
 
-class SettingsActivity : FragmentActivity(){}/*{
+class SettingsActivity : FragmentActivity(){
 
     private var mProfile : Profile? = null
     private var mPortal : Portal? = null
@@ -29,4 +32,3 @@ class SettingsActivity : FragmentActivity(){}/*{
 
 
 }
-*/

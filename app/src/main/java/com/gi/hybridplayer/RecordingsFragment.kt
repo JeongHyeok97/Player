@@ -1,12 +1,9 @@
 package com.gi.hybridplayer
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.leanback.app.BrowseSupportFragment
 import androidx.leanback.widget.*
@@ -24,6 +21,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class RecordingsFragment : BrowseSupportFragment() {
+
     var arrayObjectAdapter: ArrayObjectAdapter? = null
 
 
@@ -56,7 +54,6 @@ class RecordingsFragment : BrowseSupportFragment() {
             }
         onItemViewSelectedListener =
             OnItemViewSelectedListener { _, item, _, _ ->
-//                selectedRecord = item as RecordedProgram
             }
     }
 
@@ -122,9 +119,11 @@ class RecordingsFragment : BrowseSupportFragment() {
         } catch (e:Exception){
             null
         }
-
     }
-    fun getVideoDuration(filePath: String): Long {
+
+
+
+    private fun getVideoDuration(filePath: String): Long {
         return try {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(filePath)
@@ -135,7 +134,6 @@ class RecordingsFragment : BrowseSupportFragment() {
         } catch (e:Exception){
             -1
         }
-
     }
 
     companion object {

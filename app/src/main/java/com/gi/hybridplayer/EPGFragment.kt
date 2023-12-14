@@ -15,6 +15,7 @@ import com.gi.hybridplayer.db.repository.TvRepository
 import com.gi.hybridplayer.model.Channel
 import com.gi.hybridplayer.model.Portal
 import com.gi.hybridplayer.model.Program
+import com.gi.hybridplayer.model.ShortEpg
 import com.gi.hybridplayer.viewmodel.ChannelListViewModel
 import com.gi.hybridplayer.viewmodel.TvViewModel
 import kotlinx.coroutines.*
@@ -45,7 +46,6 @@ class EPGFragment
     private var mUpdateJob : Job? =null
     private lateinit var mTvRepository: TvRepository
     private var scheduler:Scheduler? = null
-
 
 
 
@@ -82,8 +82,12 @@ class EPGFragment
         val endUtcMillis = currentDate.plusDays(4).atStartOfDay().toInstant(
             ZoneOffset.UTC).toEpochMilli()
 
-        mChannelsViewModel.currentCategory.observe(viewLifecycleOwner){category->
-            val channelList = category.second
+        mChannelsViewModel.currentCategory.observe(viewLifecycleOwner){ category->
+            val channelList = category.second.toMutableList()
+            if (channelList.size > 2000) {
+                channelList.subList(2000, channelList.size).clear()
+            }
+
             setState(State.Loading)
             mChannels.clear()
             mChannelsMap.clear()
@@ -93,7 +97,6 @@ class EPGFragment
                 mCoroutineScope = CoroutineScope(Dispatchers.IO)
             }
 
-
             mUpdateJob = mCoroutineScope.launch {
                 delay(1000)
                 if (channelList.isNotEmpty()){
@@ -102,8 +105,8 @@ class EPGFragment
                     val iterator = mChannels.iterator()
                     while(iterator.hasNext()){
                         val it = iterator.next()
-                        setupChannels[it.chId] = programGuideManager
-                            .createGapList(it.chId.toLong(),
+                        setupChannels[it.chId] =
+                            programGuideManager.createGapList(it.chId.toLong(),
                                 startUtcMillis,
                                 endUtcMillis,
                                 viewportMillis)
@@ -115,6 +118,7 @@ class EPGFragment
                     programGuideManager.updateChannelsTimeRange(currentDate, DISPLAY_TIMEZONE)
                     programGuideManager.notifySchedulesUpdated()
                 }
+
                 try {
                     updatePrograms(startUtcMillis, endUtcMillis)
                 }
@@ -127,8 +131,10 @@ class EPGFragment
 
 
 
-    private fun updatePrograms(startUtcMillis: Long, endUtcMillis: Long) {
+    private suspend fun updatePrograms(startUtcMillis: Long, endUtcMillis: Long) {
         val iterator = CopyOnWriteArrayList(mChannels)
+        var count = 0
+        val interval = 13
         iterator.forEach { channel->
             if (channel is Channel){
                 val programs = mConnectManager
@@ -149,9 +155,8 @@ class EPGFragment
                             lastProgram.endsAtMillis))
                     }
                     mChannelsMap[channel.chId] = programs
-                    getProgramHandler.post {
-                        update(channelId = channel.chId)
-                    }
+                    update(channelId = channel.chId)
+
                 }
             }
         }
@@ -222,8 +227,6 @@ class EPGFragment
                     }
                 }
             }
-
-
         }
     }
 
@@ -322,6 +325,21 @@ class EPGFragment
 
     }
 
+    fun setEpgDetail() {
+        if (mSelectedSchedule?.isGap == false){
+            val originalNetworkId = mSelectedChannel?.chId?.toLong()
+            val shortEpgList = mRootActivity.getShortEpg(originalNetworkId!!)
+            var shortEpg: ShortEpg? = null
+            shortEpgList.forEach {
+                if (it.name == mSelectedSchedule?.displayTitle){
+                    shortEpg = it
+                }
+            }
+            if (shortEpg != null){
+
+            }
+        }
+    }
 
 
 }

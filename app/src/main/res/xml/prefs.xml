@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/setting"
+    >
+    <PreferenceCategory
+        android:title="@string/setting"
+        >
+        <Preference
+            android:key="prefs_portal_info_key"
+            android:icon="@drawable/ic_portal"
+            android:title="@string/settings_portal_information"
+            />
+
+
+        <Preference
+            android:key="prefs_box_info_key"
+            android:icon="@drawable/ic_stb"
+            android:title="@string/settings_box_information"
+            />
+
+        <Preference
+            android:key="prefs_parental_control_key"
+            android:icon="@drawable/ic_parental"
+            android:title="@string/settings_parental_pin"
+            />
+
+
+        <ListPreference
+            android:key="prefs_banner"
+            android:icon="@drawable/ic_tv"
+            android:title="@string/banner_osd_timeout"
+            android:summary="%s"
+            android:entries="@array/osd_array"
+            android:entryValues="@array/osd_values"
+            android:defaultValue="5000"
+            />
+
+
+
+
+    </PreferenceCategory>
+</PreferenceScreen>

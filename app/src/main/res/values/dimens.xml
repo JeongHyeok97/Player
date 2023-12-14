@@ -11,8 +11,14 @@
     <dimen name="tv_view_scaled_margin_top">10dp</dimen>
     <dimen name="dialog_width">350dp</dimen>
     <dimen name="dialog_height">400dp</dimen>
+    <dimen name="text_dialog_width">450dp</dimen>
+    <dimen name="text_dialog_height">400dp</dimen>
+
 
     <dimen name="lb_settings_pane_width">520dp</dimen>
     <dimen name="lb_preference_item_padding_end">0dp</dimen>
     <dimen name="lb_preference_item_padding_start">52dp</dimen>
+
+
+    <dimen name="prefs_dialog_width">440dp</dimen>
 </resources>

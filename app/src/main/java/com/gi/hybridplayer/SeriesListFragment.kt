@@ -21,13 +21,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.Serializable
 
 class SeriesListFragment(val season: Int? = -1) : SingleLineVerticalFragment(){
-
     private lateinit var mRootActivity: SeriesActivity
     private lateinit var mAdapter: ArrayObjectAdapter
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mRootActivity = activity as SeriesActivity
@@ -35,10 +33,7 @@ class SeriesListFragment(val season: Int? = -1) : SingleLineVerticalFragment(){
         var connectManager: ConnectManager? = null
         if (pb.portal != null){
             connectManager = ConnectManager(pb.portal!!)
-
         }
-
-
         mAdapter = ArrayObjectAdapter(SeriesItemPresenter())
         adapter = mAdapter
         setOnItemViewClickedListener { _, item, _, _ ->
@@ -50,10 +45,16 @@ class SeriesListFragment(val season: Int? = -1) : SingleLineVerticalFragment(){
                         item.cmd!!,
                         item.episodeNumber.toString())
                         if (url != null){
+                            val list = arrayListOf<Episode>()
+                            for (i in 0 until mAdapter.size()){
+                                val ep = mAdapter.get(i)
+                                list.add(ep as Episode)
+                            }
                             val playback = pb.copy(url = url)
                             withContext(Dispatchers.Main){
                                 val intent = Intent(requireActivity(), PlaybackActivity::class.java)
                                 intent.putExtra(Playback.PLAYBACK_INTENT_TAG, playback)
+                                intent.putExtra("list", list as Serializable)
                                 startActivity(intent)
                             }
                         }
@@ -69,7 +70,6 @@ class SeriesListFragment(val season: Int? = -1) : SingleLineVerticalFragment(){
         super.onViewCreated(view, savedInstanceState)
         val gridView = view.findViewById<VerticalGridView>(androidx.leanback.R.id.browse_grid)
         val om = ObjectMapper()
-
         mRootActivity.getViewModel().selectedSeason.observe(viewLifecycleOwner){
                 series ->
             gridView.visibility = INVISIBLE

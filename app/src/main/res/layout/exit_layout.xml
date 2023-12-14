@@ -5,9 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="300dp"
     android:layout_gravity="center"
-    android:layout_marginLeft="55dp"
     tools:ignore="HardcodedText"
-    android:layout_marginRight="55dp"
     android:gravity="center">
 
     <LinearLayout

@@ -5,8 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_gravity="center"
-    android:layout_marginLeft="55dp"
-    android:layout_marginRight="55dp">
+  >
 
 
     <androidx.cardview.widget.CardView
@@ -16,7 +15,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:cardCornerRadius="8dp"
         android:layout_marginEnd="60dp"
+        app:cardBackgroundColor="@color/lb_default_brand_color"
         android:layout_marginStart="60dp"
+        tools:layout_width="550dp"
         app:cardElevation="15dp">
 
         <TextView
@@ -32,10 +33,11 @@
 
         <EditText
             android:id ="@+id/input_password"
-            android:layout_width="150dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:layout_gravity = "center"
             android:layout_marginHorizontal = "44dp"
+            android:textSize = "25sp"
             android:gravity = "center_horizontal"
             android:inputType="textPassword"
             tools:text = "0000"

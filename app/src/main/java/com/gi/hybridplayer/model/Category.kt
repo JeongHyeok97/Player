@@ -17,7 +17,9 @@ data class Category(
 ){
     companion object{
         const val FAVORITE_ID = "fav"
+        const val HISTORY_ID = "hist"
         val FAVORITE = Category(id = FAVORITE_ID, title = "FAVORITE" , censored = false)
+        val HISTORY = Category(id = HISTORY_ID, title = "RECENTLY WATCH", censored = false)
     }
 
     override fun toString(): String {

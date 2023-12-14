@@ -1,11 +1,13 @@
 package com.gi.hybridplayer
 
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.media.tv.TvTrackInfo
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,16 +16,14 @@ import androidx.core.content.ContextCompat
 import androidx.leanback.app.VideoSupportFragment
 import androidx.leanback.app.VideoSupportFragmentGlueHost
 import androidx.leanback.media.PlaybackGlue
-import androidx.leanback.widget.ObjectAdapter
-import androidx.leanback.widget.PlaybackControlsRow
-import androidx.leanback.widget.PlaybackSeekDataProvider
+import androidx.leanback.widget.*
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.gi.hybridplayer.conf.CloudDBManager
-import com.gi.hybridplayer.model.History
-import com.gi.hybridplayer.model.Playback
-import com.gi.hybridplayer.model.Portal
+import com.gi.hybridplayer.conf.ConnectManager
+import com.gi.hybridplayer.model.*
+import com.gi.hybridplayer.view.DetailCardPresenter
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
@@ -37,12 +37,13 @@ import com.google.android.exoplayer2.trackselection.TrackSelector
 import com.google.android.exoplayer2.ui.CaptionStyleCompat
 import com.google.android.exoplayer2.ui.SubtitleView
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.gi.hybridplayer.model.Vod
 import com.phoenix.phoenixplayer2.util.MultiSoundAction
 import com.phoenix.phoenixplayer2.util.VideoPlayerGlue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.Serializable
 import java.util.*
 
 @Suppress("DEPRECATION")
@@ -57,6 +58,7 @@ class PlaybackVideoFragment : VideoSupportFragment(), Player.Listener {
     private var mPortal: Portal? = null
     private var mHistoryRepository: HistoryRepository? = null
     private var mPlayback: Playback? = null
+    private val mPlayList = arrayListOf<Episode>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,11 +81,19 @@ class PlaybackVideoFragment : VideoSupportFragment(), Player.Listener {
 
     override fun onStart() {
         super.onStart()
+        val list = requireActivity().intent.getSerializableExtra("list")
+        @Suppress("UNCHECKED_CAST")
+        if (mPlayList.isEmpty()){
+            if (list is ArrayList<*>){
+                mPlayList.addAll(list as ArrayList<Episode>)
+            }
+        }
         initPlayer()
     }
 
     override fun onStop() {
         super.onStop()
+        mPlayList.clear()
         releasePlayer()
     }
 
@@ -126,17 +136,54 @@ class PlaybackVideoFragment : VideoSupportFragment(), Player.Listener {
                 super.onPlayCompleted(glue)
             }
         })
+
         val playback = (activity as PlaybackActivity).playback
         mPlayback = playback
         mPortal = playback.portal
         mHistoryRepository = HistoryRepository(requireContext(), mPortal?.id!!)
         play(playback)
+        val presenterSelector = ClassPresenterSelector()
+        presenterSelector.addClassPresenter(
+            mPlayerGlue!!.controlsRow.javaClass, mPlayerGlue!!.playbackRowPresenter
+        )
+        presenterSelector.addClassPresenter(ListRow::class.java, ListRowPresenter())
+        val rowsAdapter = ArrayObjectAdapter(presenterSelector)
+
+        rowsAdapter.add(mPlayerGlue!!.controlsRow)
+
+        val header = HeaderItem("${playback.vod?.name}")
+        val lrp = ArrayObjectAdapter(DetailCardPresenter())
+        lrp.addAll(0, mPlayList)
+        val row = ListRow(header, lrp)
+        rowsAdapter.add(row)
+        setOnItemViewClickedListener { itemViewHolder, item, rowViewHolder, row ->
+            CoroutineScope(Dispatchers.IO).launch {
+                if (item is Episode){
+                    Log.d("TAG ", "$item")
+                    val connectManager = ConnectManager(mPortal)
+                    val url = connectManager.createLink(
+                        Vod.TYPE_VOD,
+                        item.cmd!!,
+                        item.episodeNumber.toString())
+                    if (url != null){
+                        withContext(Dispatchers.Main){
+                            val intent = Intent(requireActivity(), PlaybackActivity::class.java)
+                            intent.putExtra(Playback.PLAYBACK_INTENT_TAG, playback.copy(
+                                url = url
+                            ))
+                            intent.putExtra("list", mPlayList)
+                            startActivity(intent)
+                        }
+                    }
+                }
+            }
+        }
+        adapter = rowsAdapter
+
     }
     private fun play(playback: Playback) {
-        val vod = playback.vod
         val detail = playback.detail
         val url = playback.url
-        val id = vod?.id
         mPlayerGlue!!.title = detail?.title
         mPlayerGlue!!.subtitle = detail?.overView
         val posterUrl = detail?.posterPath
@@ -154,10 +201,7 @@ class PlaybackVideoFragment : VideoSupportFragment(), Player.Listener {
         val factory = DefaultHttpDataSource.Factory()
         val mediaSource: MediaSource = ProgressiveMediaSource.Factory(factory)
             .createMediaSource(MediaItem.fromUri(url!!))
-
         (mPlayer as SimpleExoPlayer).prepare(mediaSource)
-//        val position: Long = getWatched(id)
-//        mPlayer.seekTo(position)
         if (mPlayback?.vod?.history != null){
             mPlayer?.seekTo(mPlayback?.vod?.history!!.endTime)
         }

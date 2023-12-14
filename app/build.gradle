@@ -32,6 +32,7 @@ dependencies {
     implementation project(':lib_epg')
     implementation 'androidx.room:room-common:2.6.0'
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.leanback:leanback-preference:1.0.0'
     //noinspection GradleDependency
     kapt "androidx.room:room-compiler:2.5.2"
     implementation 'androidx.room:room-ktx:2.6.0'

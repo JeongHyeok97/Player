@@ -6,9 +6,11 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideChannel
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity(tableName = "channel")
 data class Channel(
@@ -31,13 +33,17 @@ data class Channel(
 ): ProgramGuideChannel, Serializable {
 
 
-
+    @JsonIgnore
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     var id:Long? = null
+    @JsonIgnore
     var inputId: String? = "null"
+    @JsonIgnore
     var packageName: String?= "com.gi.hybridplayer"
-    var isLocked:Boolean = false
+
+
+    var isLock:Boolean = false
 
     companion object{
         const val CHANNEL_INTENT_TAG = "intent_channel"

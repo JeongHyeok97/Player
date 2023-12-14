@@ -9,6 +9,8 @@ import com.gi.hybridplayer.model.Channel
 class TvViewModel : ViewModel() {
     private val mCurrentCategory = MutableLiveData<Pair<Category, List<Channel>>>()
     private val mCurrentChannel = MutableLiveData<Channel>()
+
+
     val currentCategory: LiveData<Pair<Category, List<Channel>>>
         get() {
             return mCurrentCategory

@@ -159,7 +159,7 @@ class InputService : TvInputService(){
                 val channel = mRepository.getChannel("$channelUri".toLong())
 
                 if (channel != null){
-                    if (channel.isLocked){
+                    if (channel.isLock){
                         if (bundle != null){
                             if (bundle.getBoolean("auth", false)){
                                 val url = channel.videoUrl

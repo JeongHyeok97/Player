@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Spieler</string>
+
+    <!--Authentication-->
+    <string name="auth_failed">Box-Authentifizierung fehlgeschlagen.</string>
+
+    <!--Portal Page-->
+    <string name="connected">Verbunden</string>
+    <string name="add_portal">Portal hinzufügen</string>
+    <string name="portals">LIVE PORTALE</string>
+    <string name="quick_insert">Schneller Code</string>
+
+    <!--Edit Page-->
+    <string name="enter_your_name">Geben Sie Ihren Portalnamen ein</string>
+    <string name="enter_your_url">Geben Sie Ihre Portal-URL ein</string>
+    <string name="require_login">Anmeldung erforderlich?</string>
+    <string name="enter_user_id">Geben Sie Ihre ID ein</string>
+    <string name="enter_user_password">Geben Sie Ihr Passwort ein</string>
+
+    <string name="epg_mode">EPG-Modus</string>
+    <string name="epg_offset">EPG-Versatz</string>
+    <string name="group_channel_numbering">Gruppenkanalnummerierung</string>
+    <string name="mac_type">MAC-Typ</string>
+
+    <!--Connect Portal-->
+    <string name="quick_insert_message">Code einfügen</string>
+    <string name="action_connect">Verbinden</string>
+    <string name="action_reload">Neu laden</string>
+    <string name="action_edit">Bearbeiten</string>
+    <string name="action_delete">Löschen</string>
+    <string name="loading">Laden…</string>
+    <string name="start_download">Daten werden heruntergeladen…</string>
+
+    <!--Banner-->
+    <string name="banner_record">Aufnehmen</string>
+    <string name="banner_fav">Favorit</string>
+    <string name="banner_lock">Sperren</string>
+    <string name="banner_av">Audio/Video</string>
+
+    <string name="banner_single_epg">Einzel-EPG</string>
+    <string name="audio_video">Audio</string>
+
+    <!--Menu-->
+    <string name="live_tv">Live-TV</string>
+    <string name="vod">VOD</string>
+    <string name="tv_series">TV-Serien</string>
+    <string name="recordings">Aufnahmen</string>
+    <string name="schedules">Zeitplan</string>
+    <string name="portal">Portal</string>
+    <string name="setting">Einstellungen</string>
+    <string name="exit_text_1">Beenden</string>
+    <string name="exit_text_2">Sind Sie sicher, dass Sie beenden möchten?</string>
+    <string name="ok_button_text">OK</string>
+    <string name="cancel_button_text">Abbrechen</string>
+
+    <!--Messages-->
+    <string name="recording_no_usb">Die Aufnahme-Funktion erfordert externen Speicher (USB)</string>
+    <string name="no_data">Keine Daten gefunden</string>
+
+    <string name="settings_portal_information">Portalinformationen</string>
+    <string name="settings_box_information">Box-Informationen</string>
+    <string name="settings_parental_pin">Elterliche PIN ändern</string>
+    <string name="new_password">Neues Passwort eingeben</string>
+    <string name="repeat_password">Neues Passwort bestätigen</string>
+    <string name="banner_osd_timeout">Banner OSD Timeout</string>
+    <string name="parental_title">PIN eingeben</string>
+    <string name="parental_hint">PASSWORT</string>
+    <string name="parental_positive">Fortfahren</string>
+    <string name="parental_negative">Schließen</string>
+
+    <string-array name="osd_array">
+        <item>3 Sekunden</item>
+        <item>5 Sekunden</item>
+        <item>7 Sekunden</item>
+        <item>15 Sekunden</item>
+        <item>20 Sekunden</item>
+    </string-array>
+
+    <string-array name="osd_values">
+        <item>3000</item>
+        <item>5000</item>
+        <item>7000</item>
+        <item>15000</item>
+        <item>20000</item>
+    </string-array>
+</resources>

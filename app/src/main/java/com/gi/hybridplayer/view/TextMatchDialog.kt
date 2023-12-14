@@ -10,6 +10,7 @@ import android.view.View
 import android.view.Window
 import android.widget.EditText
 import android.widget.Toast
+import com.gi.hybridplayer.R
 
 class TextMatchDialog(context: Context, resultListener: OnSuccessListener) {
 
@@ -18,6 +19,7 @@ class TextMatchDialog(context: Context, resultListener: OnSuccessListener) {
     private var targetText: String? = ""
     private val mContext:Context
     private val mListener:OnSuccessListener
+
     init {
         mContext = context
         mListener = resultListener
@@ -33,10 +35,17 @@ class TextMatchDialog(context: Context, resultListener: OnSuccessListener) {
 
     fun setContentView(resource: Int){
         dialog.setContentView(resource)
+        val params = dialog.window?.attributes
+        params?.width = mContext.resources.getDimensionPixelSize(R.dimen.text_dialog_width)
+        params?.height = mContext.resources.getDimensionPixelSize(R.dimen.text_dialog_height)
+        dialog.window?.attributes = params
     }
+
     fun setMainText(resource: Int){
         inputTextView = dialog.findViewById(resource)
     }
+
+
     fun setTargetText(password: String?){
         this.targetText = password
         inputTextView?.addTextChangedListener(object : TextWatcher {

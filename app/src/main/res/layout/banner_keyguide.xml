@@ -82,9 +82,8 @@
         android:id="@+id/audio"
         android:layout_width="20dp"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toEndOf="@id/plus_one_day_text"
-        android:background = "@drawable/ic_tab"
-        android:backgroundTint = "#FFFFFF"
+        app:layout_constraintEnd_toStartOf="@id/key_guide_av"
+        android:background = "@drawable/ic_right"
         />
 
     <TextView
@@ -92,8 +91,9 @@
         style="@style/ProgramGuide.Text.KeyGuide"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:text = "@string/audio_video"
-        app:layout_constraintStart_toEndOf="@id/audio"
+        android:text = "@string/banner_single_epg"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp"
         />
 
 

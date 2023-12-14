@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.gi.hybridplayer.viewmodel.AudioViewModel" />
+        <variable
+            name="listener"
+            type="com.gi.hybridplayer.view.AudioDialogAdapter.Listener" />
+    </data>
+    <androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:data="@{viewModel.currentTracks}"
+            app:listener="@{listener}"
+            />
+
+    </androidx.cardview.widget.CardView>
+</layout>

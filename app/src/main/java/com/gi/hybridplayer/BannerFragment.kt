@@ -7,9 +7,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.preference.PreferenceManager
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
@@ -73,7 +74,6 @@ class BannerFragment: Fragment() {
         val osdTimeOut = PreferenceManager.getDefaultSharedPreferences(requireContext())
             .getString("SETTINGS_PREFERENCE", "5000")!!.replace(",", "").toLong()
         bannerOsdTimeout = osdTimeOut
-        Log.d(TAG, "$bannerOsdTimeout")
     }
 
     @SuppressLint("SetTextI18n")
@@ -88,27 +88,40 @@ class BannerFragment: Fragment() {
         }
         timer = Timer()
         timer?.scheduleAtFixedRate(timerTask, 0, 1000)
+        val viewModel = mRootActivity.getTracks()
+        viewModel.currentTracks.observe(viewLifecycleOwner){ formats->
+            binding.videoType.visibility = INVISIBLE
+            binding.videoType.text = ""
+            formats.forEach {
+                if (it.sampleMimeType?.startsWith("video") == true){
+                    val width = it.width
+                    val height = it.height
+                    VideoResolution.values().forEach { videoResolution ->
+                        if (videoResolution.width == width && videoResolution.height == height){
+                            binding.videoType.visibility = VISIBLE
+                            binding.videoType.text = videoResolution.name
+                        }
+                    }
+                }
+            }
+        }
         binding.progressBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (progress == seekBar?.max){
                     updateProgram(originalNetworkId = mCurrentChannelId)
                 }
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
             }
         })
-
-
     }
 
     fun setVideoType(videoInfo: TvTrackInfo){
         var videoResolution: VideoResolution? = null
-        binding.videoType.visibility = View.VISIBLE
+        binding.videoType.visibility = VISIBLE
         if (videoInfo != null) {
             val videoWidth = videoInfo.videoWidth
             val videoHeight = videoInfo.videoHeight
@@ -156,7 +169,7 @@ class BannerFragment: Fragment() {
             }
 
             val isFavor = channel.isFavorite
-            val isLocked = channel.isLocked
+            val isLocked = channel.isLock
             setFavorite(isFavor)
             setLock(isLocked)
             binding.videoType.visibility = View.INVISIBLE
@@ -204,9 +217,7 @@ class BannerFragment: Fragment() {
                             }
                         }, 800)
                     }
-
                 }
-
                 else{
                     releaseBannerProgram()
                 }
@@ -235,7 +246,7 @@ class BannerFragment: Fragment() {
     fun setFavorite(insert: Boolean) {
         binding.channelFavorite.visibility =
             if (insert){
-                View.VISIBLE
+                VISIBLE
             } else{
                 View.GONE
             }
@@ -244,7 +255,7 @@ class BannerFragment: Fragment() {
     fun setLock(insert: Boolean) {
         binding.channelLock.visibility =
             if (insert){
-                View.VISIBLE
+                VISIBLE
             } else{
                 View.GONE
             }
@@ -252,7 +263,7 @@ class BannerFragment: Fragment() {
 
     fun setRecord(isRecording: Boolean) {
         if (isRecording){
-            binding.recordingStateIndicator.visibility = View.VISIBLE
+            binding.recordingStateIndicator.visibility = VISIBLE
         }
         else{
             binding.recordingStateIndicator.visibility = View.GONE
@@ -260,9 +271,8 @@ class BannerFragment: Fragment() {
     }
 
     fun setState(state: Int) {
-        val stateView = binding.connectionState as ImageView
-        var stateDrawableId: Int? = null
-        stateDrawableId = when (state) {
+        val stateView = binding.connectionState
+        val stateDrawableId: Int? = when (state) {
             0 -> {
                 R.drawable.ic_stream_available
             }

@@ -2,6 +2,7 @@ package com.gi.hybridplayer.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.io.Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Episode(
@@ -17,7 +18,7 @@ data class Episode(
     @JsonProperty("runtime")
     val duration:Long?,
     @JsonProperty("still_path")
-    val thumbnail:String?){
+    val thumbnail:String?): Serializable{
     companion object{
         const val EPISODE_INTENT = "episode_intent"
     }

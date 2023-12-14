@@ -117,14 +117,13 @@ class MenuFragment(val portal: Portal): Fragment() {
                     startActivity(intent)
                 }
                 resources.getString(R.string.setting) -> {
-//                    val intent = Intent(activity?.baseContext, SettingsActivity::class.java)
-//                    val rootActivity = activity as TvActivity
-//                    val profile = rootActivity.mProfile
-//                    val portal = rootActivity.mConnectedPortal
-//                    intent.putExtra(Profile.TAG_INTENT_PROFILE, profile)
-//                    intent.putExtra(Portal.PORTAL_INTENT_TAG, portal)
-//                    startActivity(intent)
-
+                    val intent = Intent(activity?.baseContext, SettingsActivity::class.java)
+                    val rootActivity = activity as TvActivity
+                    val profile = rootActivity.getProfile()
+                    val portal = rootActivity.getPortal()
+                    intent.putExtra(Profile.TAG_INTENT_PROFILE, profile)
+                    intent.putExtra(Portal.PORTAL_INTENT_TAG, portal)
+                    startActivity(intent)
 
                 }
                 resources.getString(R.string.exit_text_1) -> {

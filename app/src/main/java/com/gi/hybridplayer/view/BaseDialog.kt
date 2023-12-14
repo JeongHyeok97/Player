@@ -22,6 +22,19 @@ class BaseDialog(context: Context) {
     fun setContentView(layoutResource: Int){
         dialog.setContentView(layoutResource)
     }
+    fun bindContentView(view: View){
+        dialog.setContentView(view)
+    }
+    fun setWidth(width: Int){
+        val params = dialog.window?.attributes
+        params?.width = width
+        dialog.window?.attributes = params
+    }
+    fun setHeight(height: Int){
+        val params = dialog.window?.attributes
+        params?.height = height
+        dialog.window?.attributes = params
+    }
     fun setPositiveButton(btnResource: Int, listener: View.OnClickListener){
         positiveButton = dialog.findViewById(btnResource)
         positiveButton?.setOnClickListener(listener)
@@ -29,6 +42,9 @@ class BaseDialog(context: Context) {
     fun setNegativeButton(btnResource: Int, listener: View.OnClickListener){
         negativeButton = dialog.findViewById(btnResource)
         negativeButton?.setOnClickListener(listener)
+    }
+    fun setTitle(title: String){
+        dialog.setTitle(title)
     }
 
     fun show(){

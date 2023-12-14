@@ -6,6 +6,7 @@ import com.gi.hybridplayer.db.ChannelDatabase
 import com.gi.hybridplayer.db.dao.ChannelsDao
 import com.gi.hybridplayer.model.Category
 import com.gi.hybridplayer.model.Category.Companion.FAVORITE_ID
+import com.gi.hybridplayer.model.Category.Companion.HISTORY_ID
 import com.gi.hybridplayer.model.Channel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -65,6 +66,7 @@ class TvRepository(context: Context) {
             FAVORITE_ID -> {
                 getFavoriteChannels()
             }
+
             else -> channelsDao.getGroup(tvGenreId)
         }
     }

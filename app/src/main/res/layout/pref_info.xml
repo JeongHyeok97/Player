@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="data"
+            type="java.util.List" />
+    </data>
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        app:cardBackgroundColor="@color/lb_default_brand_color"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="15dp"
+        >
+        <TextView
+            android:id="@+id/prefs_1"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="@{String.valueOf(data.get(0))}"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:paddingHorizontal="15dp"
+            android:fontFamily = "sans-serif-medium"
+            tools:text = "MAC Address: xx:xx:xx:xx:xx:xx"
+            android:maxLines = "1"
+            />
+        <TextView
+            android:id="@+id/prefs_2"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="55dp"
+            android:text="@{String.valueOf(data.get(1))}"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:paddingHorizontal="15dp"
+            android:fontFamily = "sans-serif-medium"
+            tools:text = "ABCD: BLAHBLAHBLAHBLAH"
+            android:maxLines = "1"
+            />
+        <TextView
+            android:id="@+id/prefs_3"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="110dp"
+            android:text="@{String.valueOf(data.get(2))}"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:paddingHorizontal="15dp"
+            android:fontFamily = "sans-serif-medium"
+            tools:text = "ABCD: BLAHBLAHBLAHBLAH"
+            android:maxLines = "1"
+            />
+        <TextView
+            android:id="@+id/prefs_4"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:text="@{String.valueOf(data.get(3))}"
+            android:layout_marginTop="165dp"
+            android:gravity="center_vertical"
+            android:textSize="16sp"
+            android:paddingHorizontal="15dp"
+            android:fontFamily = "sans-serif-medium"
+            tools:text = "ABCD: BLAHBLAHBLAHBLAH"
+            android:maxLines = "1"
+            />
+    </androidx.cardview.widget.CardView>
+
+</layout>

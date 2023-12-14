@@ -36,7 +36,9 @@
     <string name="banner_record">Record</string>
     <string name="banner_fav">Favorite</string>
     <string name="banner_lock">Lock</string>
-    <string name="banner_av">Single EPG</string>
+    <string name="banner_av">Audio/Video</string>
+
+    <string name="banner_single_epg">Single EPG</string>
     <string name="audio_video">Audio</string>
 
 
@@ -59,5 +61,32 @@
     <string name="no_data">No Data Found</string>
 
 
+
+    <string name="settings_portal_information">Portal information</string>
+    <string name="settings_box_information">Box information</string>
+    <string name="settings_parental_pin">Change Parental PIN</string>
+    <string name="new_password">Input New Password</string>
+    <string name="repeat_password">Confirm new password</string>
+    <string name="banner_osd_timeout">Banner OSD Timeout</string>
     <string name="parental_title">Enter Pin</string>
+    <string name="parental_hint">PASSWORD</string>
+    <string name="parental_positive">Continue</string>
+    <string name="parental_negative">Close</string>
+
+
+    <string-array name="osd_array">
+        <item>3 Seconds</item>
+        <item>5 Seconds</item>
+        <item>7 Seconds</item>
+        <item>15 Seconds</item>
+        <item>20 Seconds</item>
+    </string-array>
+
+    <string-array name="osd_values">
+        <item>3000</item>
+        <item>5000</item>
+        <item>7000</item>
+        <item>15000</item>
+        <item>20000</item>
+    </string-array>
 </resources>

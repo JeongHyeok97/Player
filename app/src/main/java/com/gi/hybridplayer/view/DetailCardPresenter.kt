@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.gi.hybridplayer.R
 import com.gi.hybridplayer.conf.CloudDBManager
 import com.gi.hybridplayer.model.Credits
+import com.gi.hybridplayer.model.Episode
 
 class DetailCardPresenter : Presenter() {
     private var context: Context? = null
@@ -32,6 +33,8 @@ class DetailCardPresenter : Presenter() {
             context!!.resources.getDimensionPixelSize(R.dimen.detail_cardview_width),
             context!!.resources.getDimensionPixelSize(R.dimen.detail_cardview_height)
         )
+
+
         cardView.isFocusable = true
         cardView.isFocusableInTouchMode = true
         updateCardBackgroundColor(cardView, false)
@@ -39,6 +42,7 @@ class DetailCardPresenter : Presenter() {
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, item: Any) {
+
         val cardView = viewHolder.view as ImageCardView
         if (item is Credits.Cast) {
             val cast: Credits.Cast = item
@@ -54,7 +58,7 @@ class DetailCardPresenter : Presenter() {
                 )
                 .into(cardView.mainImageView)
         } else if (item is Credits.Crew) {
-            val crew: Credits.Crew = item as Credits.Crew
+            val crew: Credits.Crew = item
             cardView.titleText = crew.name
             cardView.contentText = crew.job
             Glide.with(context!!).load(CloudDBManager.TMDB_IMAGE_SERVER_PATH + crew.profilePath)
@@ -66,25 +70,39 @@ class DetailCardPresenter : Presenter() {
                 )
                 .into(cardView.mainImageView)
         }
+        else if (item is Episode){
+            cardView.titleText = item.title
+            cardView.contentText = "EP.${item.episodeNumber}"
+            Glide.with(context!!).load(CloudDBManager.TMDB_IMAGE_SERVER_PATH + item.thumbnail)
+                .error(
+                    ContextCompat.getDrawable(
+                        context!!,
+                        R.drawable.movie_default
+                    )
+                )
+                .into(cardView.mainImageView)
+        }
     }
 
     override fun onUnbindViewHolder(viewHolder: ViewHolder) {
+
         val cardView = viewHolder.view as ImageCardView
         // Remove references to images so that the garbage collector can free up memory
         cardView.badgeImage = null
         cardView.mainImage = null
+
     }
 
     companion object {
+
         private const val TAG = "CardPresenter"
         private const val CARD_WIDTH = 180
         private const val CARD_HEIGHT = 240
         private var sSelectedBackgroundColor = 0
         private var sDefaultBackgroundColor = 0
+
         private fun updateCardBackgroundColor(view: ImageCardView, selected: Boolean) {
             val color = if (selected) sSelectedBackgroundColor else sDefaultBackgroundColor
-            // Both background colors should be set because the view"s background is temporarily visible
-            // during animations.
             view.setBackgroundColor(color)
             view.setInfoAreaBackgroundColor(color)
         }
