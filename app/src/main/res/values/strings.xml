@@ -39,6 +39,9 @@
     <string name="banner_av">Audio/Video</string>
 
     <string name="banner_single_epg">Single EPG</string>
+    <string name="banner_detail" translatable="false">Program Information</string>
+    <string name="banner_search" translatable="false">Search</string>
+
     <string name="audio_video">Audio</string>
 
 
@@ -73,6 +76,12 @@
     <string name="parental_positive">Continue</string>
     <string name="parental_negative">Close</string>
 
+    <string name="current_program" translatable="false">Program Information</string>
+    <string name="search_hint" translatable="false">Search a channel name</string>
+    <string name="sort_a_z" translatable="false">Sort by Name</string>
+    <string name="sort_num" translatable="false">Sort by Number</string>
+    <string name="category_keyguide_movetotop" translatable="false">Move to top</string>
+    <string name="category_keyguide_movetobottom" translatable="false">Move to bottom</string>
 
     <string-array name="osd_array">
         <item>3 Seconds</item>

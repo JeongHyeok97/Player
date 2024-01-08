@@ -150,8 +150,6 @@ class PortalEditFragment(private var portal: Portal? = null) : Fragment(){
                             }
                         }
                     })
-
-
                 }
             }
             .create().show()
@@ -186,6 +184,7 @@ class PortalEditFragment(private var portal: Portal? = null) : Fragment(){
         val epgModes = EPGMode.values().toList()
         val epgOffsets = EPGOffset.values().toList()
         val grouping = GroupChannelNumbering.values().toList()
+
         val macTypes = MacType.values().toList()
         binding.spinnerEpgMode.adapter = getSpinnerAdapter(epgModes)
         binding.spinnerEpgOffset.adapter = getSpinnerAdapter(epgOffsets)

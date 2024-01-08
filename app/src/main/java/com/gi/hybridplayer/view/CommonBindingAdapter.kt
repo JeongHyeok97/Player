@@ -2,6 +2,7 @@ package com.gi.hybridplayer.view
 
 import android.graphics.drawable.Drawable
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -13,6 +14,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.gi.hybridplayer.R
 import com.gi.hybridplayer.TvActivity
+import com.gi.hybridplayer.model.Channel
 
 object CommonBindingAdapters{
 
@@ -56,10 +58,31 @@ object CommonBindingAdapters{
         recyclerView.layoutManager = LinearLayoutManager(recyclerView.context)
         recyclerView.adapter = listAdapter
     }
+    @BindingAdapter("app:result")
+    @JvmStatic fun setResult(recyclerView: RecyclerView, list:List<Channel>?){
+        val listAdapter = if (list == null){
+            SearchResultAdapter(listOf())
+        }
+        else{
+            SearchResultAdapter(list)
+        }
+
+        recyclerView.layoutManager = LinearLayoutManager(recyclerView.context)
+        recyclerView.adapter = listAdapter
+    }
     @BindingAdapter("app:listener")
     @JvmStatic fun setData(recyclerView: RecyclerView, listener: AudioDialogAdapter.Listener){
         val listAdapter:AudioDialogAdapter = recyclerView.adapter as AudioDialogAdapter
         listAdapter.setOnListener(listener)
     }
+    @BindingAdapter("app:onItemClickListener")
+    @JvmStatic fun setListener(recyclerView: RecyclerView, listener: SearchResultAdapter.Listener){
+        val listAdapter:SearchResultAdapter = recyclerView.adapter as SearchResultAdapter
+        recyclerView.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus){
 
+            }
+        }
+        listAdapter.setListener(listener)
+    }
 }

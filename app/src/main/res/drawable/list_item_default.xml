@@ -15,6 +15,20 @@
                 />
         </shape>
     </item>
+    <item android:state_focused = "true">
+        <shape
+            android:shape="rectangle">
+            <gradient
+                android:startColor="#B85A8296"
+                android:centerColor="#DB5A8296"
+                android:endColor="#5A8296"
+                android:angle="0"/>
+            <corners
+                android:topRightRadius = "80dp"
+                android:bottomRightRadius = "80dp"
+                />
+        </shape>
+    </item>
 
     <item>
         <shape

@@ -34,4 +34,18 @@ data class ShortEpg(
     companion object{
         val EMPTY_PROGRAM = ShortEpg()
     }
+    val durationStr = if (duration != null){
+        if (duration>0){
+            if (duration>3600){
+                "${duration/3600}h ${(duration%3600)/60}min"
+            }
+            else{
+                "${duration/60}min"
+            }
+        } else {
+            "-"
+        }
+    } else {
+        "-"
+    }
 }

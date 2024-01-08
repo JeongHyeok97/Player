@@ -53,6 +53,7 @@ class ChannelListFragment(private val lastCategory: Category)
         mRepository = TvRepository.getInstance(requireContext())
         onItemViewClickedListener = ChannelItemClickListener()
         setOnItemViewSelectedListener(ChannelItemSelectedListener())
+
         adapter = mChannelsAdapter
 
 
@@ -103,12 +104,7 @@ class ChannelListFragment(private val lastCategory: Category)
                 mChannelsAdapter.clear()
                 viewUpdateHandler.removeCallbacksAndMessages(null)
                 mScope.launch {
-                    val list = if (it.id != Category.HISTORY_ID){
-                        mRepository.findListByChannel(it.id!!)
-                    }
-                    else{
-                        mTvActivity.getHistory()
-                    }
+                    val list = mRepository.findListByChannel(it.id!!, mTvActivity.isGroupChannelNumbering())
                     mCurrentChannels = list
                     viewUpdateHandler.post{
                         if (it.censored == true){
@@ -146,7 +142,4 @@ class ChannelListFragment(private val lastCategory: Category)
         }
 
     }
-
-
-
 }

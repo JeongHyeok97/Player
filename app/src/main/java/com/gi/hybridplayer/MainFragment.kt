@@ -20,7 +20,9 @@ import com.gi.hybridplayer.viewmodel.PortalViewModel
  */
 class MainFragment : RowsSupportFragment(){
 
-    private val mRowsAdapter: ArrayObjectAdapter = ArrayObjectAdapter(ListRowPresenter(0, false))
+    private val mRowsAdapter: ArrayObjectAdapter =
+        ArrayObjectAdapter(ListRowPresenter(0,
+        false))
     private lateinit var mListRowsAdapter: ArrayObjectAdapter
     private lateinit var portalViewModel: PortalViewModel
     private lateinit var mRootActivity: MainActivity

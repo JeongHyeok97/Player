@@ -13,7 +13,8 @@
     <dimen name="dialog_height">400dp</dimen>
     <dimen name="text_dialog_width">450dp</dimen>
     <dimen name="text_dialog_height">400dp</dimen>
-
+    <dimen name="list_dialog_width">420dp</dimen>
+    <dimen name="list_dialog_height">520dp</dimen>
 
     <dimen name="lb_settings_pane_width">520dp</dimen>
     <dimen name="lb_preference_item_padding_end">0dp</dimen>

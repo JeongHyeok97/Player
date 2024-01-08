@@ -12,6 +12,8 @@ interface ChannelsDao {
 
     @Query("SELECT * FROM channel WHERE originalNetworkId = :originalNetworkId")
     suspend fun getChannel(originalNetworkId: Long):Channel?
+
+
     @Insert
     suspend fun insert(channel: Channel)
 
@@ -38,5 +40,9 @@ interface ChannelsDao {
 
     @Update
     suspend fun update(channel: Channel)
+
+
+    @Query("SELECT * FROM channel WHERE displayName LIKE :searchQuery COLLATE NOCASE AND isLock = 0")
+    suspend fun search(searchQuery: String): List<Channel>
 
 }

@@ -70,7 +70,7 @@ class TvPlayer(context: Context) {
         val factory = DefaultHttpDataSource.Factory()
         val upstreamFactory: DataSource.Factory =
             LiveDataSource.Factory(mContext, factory)
-        Log.d("TAG ", streamUrl)
+
         val mediaItem = MediaItem.fromUri(Uri.parse(streamUrl))
         return if (streamUrl.contains(".m3u8")){
             val m3u8Factory = HlsMediaSource.Factory(upstreamFactory)

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/default_background"
+    tools:layout_height="50dp">
+
+    <ImageView
+        android:id="@+id/category_keyguide_red"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:tint="#FF0000"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/programguide_button_background"
+        tools:ignore="UseAppTint" />
+    <TextView
+        android:id="@+id/category_keyguide_red_text"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/category_keyguide_red"
+        android:text= "@string/category_keyguide_movetotop"
+        android:gravity = "center"
+        android:textSize="16sp"
+        />
+    <ImageView
+        android:id="@+id/category_keyguide_green"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:tint="#00FF00"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toEndOf="@id/category_keyguide_red_text"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/programguide_button_background"
+        tools:ignore="UseAppTint" />
+    <TextView
+        android:layout_width="130dp"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toEndOf="@id/category_keyguide_green"
+        android:text= "@string/category_keyguide_movetobottom"
+        android:gravity = "center"
+        android:textSize="16sp"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -86,6 +86,7 @@ class SeriesListFragment(val season: Int? = -1) : SingleLineVerticalFragment(){
                     epNode.forEach {
                             ep->
                         val episode = om.treeToValue(ep, Episode::class.java)
+
                         episode.cmd = series.cmd
                         mAdapter.add(episode)
                     }

@@ -11,6 +11,6 @@ enum class MacType(private val address:String) {
     }
 
     override fun toString(): String {
-        return "${name}($address)"
+        return "MacType: ${name}($address)"
     }
 }

@@ -11,10 +11,12 @@
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/details_devide_shape.xml" value="0.1205" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/edit_button_shape.xml" value="0.1205" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/edit_text_shape.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/ic_down.xml" value="0.312" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/ic_dvr.xml" value="0.1205" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/ic_fav.xml" value="0.333" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/ic_right.xml" value="0.333" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/ic_tv.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/ic_up.xml" value="0.1145" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/list_item_default.xml" value="0.1205" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/loading_circles.xml" value="0.1205" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/movie_default.xml" value="0.1205" />
@@ -28,24 +30,29 @@
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/spinner_shape.xml" value="0.1205" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/tv_gen.xml" value="0.333" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/drawable/vod_cardview_image_shape.xml" value="0.1205" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_edit.xml" value="0.3060200668896321" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_main.xml" value="0.46822916666666664" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_playback.xml" value="0.46822916666666664" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_record.xml" value="0.25625" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_series.xml" value="0.46822916666666664" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_settings.xml" value="0.2552083333333333" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_single_epg.xml" value="0.46822916666666664" />
-        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_tv.xml" value="0.24427083333333333" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/activity_tv.xml" value="0.2785388127853881" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/add_portal_image.xml" value="0.2552083333333333" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/banner_keyguide.xml" value="0.67" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/channel_list_keyguide.xml" value="0.4671875" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/dialog_auth.xml" value="0.2552083333333333" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/dialog_authentication.xml" value="0.33" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/dialog_av.xml" value="0.144136078782453" />
-        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/dialog_epg_details.xml" value="0.88" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/dialog_edit.xml" value="0.4671875" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/dialog_epg_details.xml" value="0.5013009540329575" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/dialog_search.xml" value="0.5128660159716061" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/exit_layout.xml" value="0.25625" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_action.xml" value="0.25625" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_banner.xml" value="0.67" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_details.xml" value="0.25625" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_edit.xml" value="0.4671875" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_group.xml" value="0.3060200668896321" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_loading.xml" value="0.25625" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/fragment_menu.xml" value="0.9" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/item_audio_dialog.xml" value="0.5550581915846016" />
@@ -62,7 +69,10 @@
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/layout/spinner_textview.xml" value="0.46822916666666664" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/xml/prefs.xml" value="0.2552083333333333" />
         <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/app/src/main/res/xml/tv_input.xml" value="0.2552083333333333" />
-        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/lib_epg/src/main/res/layout/programguide_fragment.xml" value="0.75" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/lib_epg/src/main/res/drawable/programguide_button_background.xml" value="0.1" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/lib_epg/src/main/res/layout/programguide_fragment.xml" value="0.67" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/lib_epg/src/main/res/layout/programguide_item_program.xml" value="0.4671875" />
+        <entry key="..\:/Users/Administrator/AndroidStudioProjects/HybridPlayer/lib_epg/src/main/res/layout/programguide_keyguide.xml" value="0.8826666666666667" />
       </map>
     </option>
   </component>

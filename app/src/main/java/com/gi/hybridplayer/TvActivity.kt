@@ -9,6 +9,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.transition.TransitionManager
 import android.util.Log
 import android.view.KeyEvent
@@ -27,26 +29,30 @@ import androidx.lifecycle.ViewModelProvider
 import com.egeniq.androidtvprogramguide.entity.ProgramGuideSchedule
 import com.gi.hybridplayer.conf.ConnectManager
 import com.gi.hybridplayer.conf.DeviceManager
-import com.gi.hybridplayer.databinding.ActivityTvBinding
-import com.gi.hybridplayer.databinding.DialogAvBinding
-import com.gi.hybridplayer.databinding.NumberTunerBinding
+import com.gi.hybridplayer.databinding.*
 import com.gi.hybridplayer.db.repository.PortalRepository
 import com.gi.hybridplayer.db.repository.TvRepository
 import com.gi.hybridplayer.model.*
+import com.gi.hybridplayer.model.enums.GroupChannelNumbering
 import com.gi.hybridplayer.view.AudioDialogAdapter
 import com.gi.hybridplayer.view.BaseDialog
+import com.gi.hybridplayer.view.SearchResultAdapter
 import com.gi.hybridplayer.view.TextMatchDialog
 import com.gi.hybridplayer.viewmodel.AudioViewModel
+import com.gi.hybridplayer.viewmodel.SearchResultViewModel
 import com.gi.hybridplayer.viewmodel.TvViewModel
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +77,7 @@ class TvActivity : FragmentActivity() {
 
     private val backgroundSetupScope = CoroutineScope(Dispatchers.IO)
     private var mProfile: Profile? = null
-    private var mCategoryMap: Map<String, Category> = mutableMapOf()
+    private var mCategoryMap: MutableMap<String, Category> = mutableMapOf()
     private var mCurrentChannel: Channel? = null
     private var mPreviousChannel:Channel? = null
     private var mCurrentCategory:Category? = null
@@ -106,11 +112,12 @@ class TvActivity : FragmentActivity() {
         mTvViewModel.currentChannel.observe(this){
             mTracksViewModel.setCurrentTracks(listOf())
             mBannerFragment.setState(3)
-            if (mHistory.size>10){
+            if (mHistory.size>3){
                 mHistory.removeAt(0)
             }
             mHistory.add(it)
             mCurrentChannel = it
+
             mBannerFragment.updateBanner(it)
             if (it.isLock){
                 authentication(object : TextMatchDialog.OnSuccessListener{
@@ -140,7 +147,29 @@ class TvActivity : FragmentActivity() {
             mProfile = mConnectManager.getProfile()
             mConnectManager.doAuth(mConnectedPortal.user_ID, mConnectedPortal.user_PW)
             mProfile = mConnectManager.getProfile()
-            mCategoryMap = mConnectManager.getTvGenres().first
+            val categoryMap = mConnectManager.getTvGenres().first
+            var reorderedMap = linkedMapOf<String, Category>()
+            val sharedPreference = getSharedPreferences("${mConnectedPortal.id}", MODE_PRIVATE)
+            val gson = Gson()
+            val seqPref: String = sharedPreference
+                .getString(mConnectedPortal.title, "")!!
+            if (seqPref != ""){
+                val savedSequence = gson.fromJson<List<String>>(seqPref,
+                    object : TypeToken<List<String>>() {}.type)
+                savedSequence?.forEach { key->
+                    if (categoryMap.containsKey(key)) {
+                        reorderedMap[key] = categoryMap[key]!!
+                    }
+                }
+            }
+            else{
+                reorderedMap = categoryMap
+            }
+
+            mCategoryMap = reorderedMap
+
+
+
             val allChannels = mRepository.getChannels()
             if (allChannels.isEmpty()){
                 val portalRepository = PortalRepository(this@TvActivity)
@@ -155,16 +184,19 @@ class TvActivity : FragmentActivity() {
             }
             else{
                 val lastChannelId = mProfile?.lastItvId
-                val lastChannel = if (lastChannelId != null && mRepository.getChannel(lastChannelId) != null){
+                val lastChannel = if (lastChannelId != null &&
+                    mRepository.getChannel(lastChannelId) != null){
                     mRepository.getChannel(lastChannelId)
                 } else{
                     allChannels[0]
                 }
                 val lastCategory = mCategoryMap[lastChannel?.genreId?:"*"]
-                val list = mRepository.findListByChannel(lastCategory?.id!!)
+                val list = mRepository.findListByChannel(lastCategory?.id!!, mConnectedPortal.group_Numbering)
+                val categoryList = mCategoryMap.values.toList()
                 withContext(Dispatchers.Main){
                     mBannerFragment = BannerFragment()
-                    mCategoryFragment = CategoryFragment(lastCategory.id, mCategoryMap.values.toList())
+                    mCategoryFragment = CategoryFragment(lastCategory.id,
+                        categoryList)
                     mChannelListFragment = ChannelListFragment(lastCategory)
                     mEpgFragment = EPGFragment()
                     supportFragmentManager.beginTransaction()
@@ -179,9 +211,21 @@ class TvActivity : FragmentActivity() {
                     mTvViewModel.setCurrentCategory(Pair(lastCategory, list))
                     setup = true
                     activityTvBinding.startLoading.visibility= INVISIBLE
-            }
-            }
+            }}
         }
+        activityTvBinding.channelSearch.addTextChangedListener(object :TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                backgroundSetupScope.launch {
+
+
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
+
     }
     private fun isChannelListVisible(): Boolean {
         return mChannelListFragment.view?.visibility == VISIBLE
@@ -232,7 +276,6 @@ class TvActivity : FragmentActivity() {
                 mTvPlayer?.prepare()
                 mBannerFragment.setState(3)
             }
-
             override fun onPlaybackStateChanged(playbackState: Int) {
                 super.onPlaybackStateChanged(playbackState)
                 when (playbackState) {
@@ -248,11 +291,13 @@ class TvActivity : FragmentActivity() {
                     Player.STATE_ENDED -> {
                         mBannerFragment.setState(3)
                         mTvPlayer?.prepare()
+                        backgroundSetupScope.launch {
+                            setVideoUrl(mCurrentChannel?.videoUrl!!)
+                        }
                     }
                     Player.STATE_IDLE -> {
                         mBannerFragment.setState(3)
                         mTvPlayer?.prepare()
-                        mTvPlayer?.play()
                     }
                 }
             }
@@ -300,9 +345,11 @@ class TvActivity : FragmentActivity() {
             progressiveFactory.createMediaSource(mediaItem)
         }
     }
+
     fun isTvRecording(): Boolean? {
         return LiveDataSource.isRecording
     }
+
     fun setRecording(recording: Boolean){
         val usbStorage = DeviceManager.getUsbStorage(this)
         if (usbStorage != null){
@@ -494,10 +541,14 @@ class TvActivity : FragmentActivity() {
                     }
                 }
                 else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT){
-                    if (mCategoryFragment.view?.visibility == View.INVISIBLE && isChannelListVisible()){
+                    if (mCategoryFragment.view?.visibility == INVISIBLE && isChannelListVisible()){
                         mCategoryFragment.view?.visibility = VISIBLE
                         setCategoryAnimator(false)
                         mCategoryFragment.view?.requestFocus()
+                    }
+                    else if (mCategoryFragment.view?.visibility == VISIBLE){
+                        val editGroupFragment = EditGroupFragment(mConnectedPortal)
+                        editGroupFragment.show(supportFragmentManager, null)
                     }
                 }
                 else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT){
@@ -510,6 +561,23 @@ class TvActivity : FragmentActivity() {
                         intent.putExtra(Channel.CHANNEL_INTENT_TAG, mCurrentChannel?.originalNetworkId!!)
                         startActivity(intent)
                     }
+                }
+                else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN){
+                    if (!mBannerFragment.isHidden){
+                        val shortEpg = mBannerFragment.getCurrentProgram()
+                        showInformation(shortEpg)
+                    }
+                }
+                else if (keyCode == KeyEvent.KEYCODE_DPAD_UP){
+                    if (!mBannerFragment.isHidden){
+                        supportFragmentManager.beginTransaction().hide(mBannerFragment)
+                            .commit()
+                        supportFragmentManager.executePendingTransactions()
+                        showSearchDialog()
+
+
+                    }
+
                 }
                 else if (keyCode == KeyEvent.KEYCODE_MENU){
                     hideCategory()
@@ -525,16 +593,16 @@ class TvActivity : FragmentActivity() {
                         transaction.replace(R.id.tv_root, menuFragment!!)
                             .addToBackStack(null)
                             .hide(mBannerFragment)
-
                             .commit()
                     }
                 }
                 else if (keyCode == KeyEvent.KEYCODE_INFO || (keyCode == KeyEvent.KEYCODE_UNKNOWN && event?.scanCode == 358)){
                     if (isChannelListVisible()){
-                        mChannelListFragment.view?.visibility = View.INVISIBLE
+                        mChannelListFragment.view?.visibility = INVISIBLE
                         mChannelListFragment.view?.requestLayout()
                         hideCategory()
                     }
+
                     val transaction: FragmentTransaction =
                         if (mBannerFragment.isHidden){
                             supportFragmentManager.beginTransaction().show(mBannerFragment)
@@ -555,19 +623,22 @@ class TvActivity : FragmentActivity() {
                     setTvViewScale(true)
                 }
                 else if (keyCode == KeyEvent.KEYCODE_PROG_YELLOW){
-                    if (mCurrentChannel != null){
-                        mCurrentChannel?.isFavorite = mCurrentChannel?.isFavorite == false
-                        mBannerFragment.setFavorite(mCurrentChannel?.isFavorite!!)
-                        backgroundSetupScope.launch {
-                            mRepository.updateChannel(mCurrentChannel!!)
-                            val favoriteChannels = mRepository.getFavoriteChannels()
-                            val idList = mutableListOf<Long>()
-                            favoriteChannels.forEach {
-                                idList.add(it.originalNetworkId!!)
+                    if (!mBannerFragment.isHidden){
+                        if (mCurrentChannel != null){
+                            mCurrentChannel?.isFavorite = mCurrentChannel?.isFavorite == false
+                            mBannerFragment.setFavorite(mCurrentChannel?.isFavorite!!)
+                            backgroundSetupScope.launch {
+                                mRepository.updateChannel(mCurrentChannel!!)
+                                val favoriteChannels = mRepository.getFavoriteChannels()
+                                val idList = mutableListOf<Long>()
+                                favoriteChannels.forEach {
+                                    idList.add(it.originalNetworkId!!)
+                                }
+                                mConnectManager.setFav(idList)
                             }
-                            mConnectManager.setFav(idList)
                         }
                     }
+
 
                 }
                 else if (keyCode == KeyEvent.KEYCODE_PROG_GREEN){
@@ -596,29 +667,39 @@ class TvActivity : FragmentActivity() {
                         audioDialog.show()
 
                     }
+                    else if (mCategoryFragment.view?.visibility == VISIBLE){
+                        mCategoryFragment.moveToBottom()
+                    }
                 }
                 else if (keyCode == KeyEvent.KEYCODE_PROG_RED){
-                    if (isTvRecording() == true){
-                        setRecording(false)
+                    if (!mBannerFragment.isHidden){
+                        if (isTvRecording() == true){
+                            setRecording(false)
+                        }
+                        else{
+                            setRecording(true)
+                        }
                     }
-                    else{
-                        setRecording(true)
+                    else if (mCategoryFragment.view?.visibility == VISIBLE){
+                        mCategoryFragment.moveToTop()
                     }
                 }
                 else if (keyCode == KeyEvent.KEYCODE_PROG_BLUE){
-                    if (mCurrentChannel?.isLock == true){
-                        authentication(object :TextMatchDialog.OnSuccessListener{
-                            override fun onSuccess() {
-                                mCurrentChannel?.isLock = false
-                                mBannerFragment.setLock(false)
-                                backgroundSetupScope.launch {
-                                    mRepository.updateChannel(mCurrentChannel!!)
+                    if (!mBannerFragment.isHidden){
+                        if (mCurrentChannel?.isLock == true){
+                            authentication(object :TextMatchDialog.OnSuccessListener{
+                                override fun onSuccess() {
+                                    mCurrentChannel?.isLock = false
+                                    mBannerFragment.setLock(false)
+                                    backgroundSetupScope.launch {
+                                        mRepository.updateChannel(mCurrentChannel!!)
+                                    }
                                 }
-                            }
-                        })
-                    }
-                    else{
-                        setLock()
+                            })
+                        }
+                        else{
+                            setLock()
+                        }
                     }
                 }
                 else if (keyCode >= KeyEvent.KEYCODE_0 && keyCode <= KeyEvent.KEYCODE_9){
@@ -680,16 +761,24 @@ class TvActivity : FragmentActivity() {
     }
 
     private fun hideChannelList(){
-        mChannelListFragment.view?.visibility = View.INVISIBLE
+        mChannelListFragment.view?.visibility = INVISIBLE
     }
 
 
     fun hideCategory(){
         setCategoryAnimator(true)
-        mCategoryFragment.view?.visibility = View.INVISIBLE
+        mCategoryFragment.view?.visibility = INVISIBLE
     }
-    fun getCategoryMap(): Map<String, Category> {
+    fun getCategoryMap(): MutableMap<String, Category> {
         return mCategoryMap
+    }
+    fun putCategory(category: Category){
+        mCategoryMap[category.id!!] = category
+        mCategoryFragment.putCategory(category)
+    }
+    fun removeCategory(category: Category){
+        mCategoryMap.remove(category.id)
+        mCategoryFragment.removeCategory(category)
     }
     fun getProfile():Profile?{
         return mProfile
@@ -729,7 +818,6 @@ class TvActivity : FragmentActivity() {
                     }
                 }
             }
-
         }
     }
 
@@ -782,6 +870,7 @@ class TvActivity : FragmentActivity() {
         }
         exitDialog.setNegativeButton(R.id.frmOk){
             exitDialog.dismiss()
+
             finishAndRemoveTask()
         }
         exitDialog.show()
@@ -801,6 +890,23 @@ class TvActivity : FragmentActivity() {
     fun getTvViewModel(): TvViewModel {
         return mTvViewModel
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        save()
+    }
+
+    fun save(){
+        val list = mCategoryFragment.getCategoryList()
+        val prefs = getSharedPreferences("${mConnectedPortal.id}", MODE_PRIVATE)
+        val editor = prefs.edit()
+        val gson = Gson()
+        val jsonList = gson.toJson(list)
+        editor.putString(mConnectedPortal.title, jsonList)
+        editor.apply()
+    }
+
+
     private fun setTvViewScale(isHidden: Boolean) {
         val layoutParams = activityTvBinding.tvView.layoutParams as ConstraintLayout.LayoutParams
         if (isHidden) {
@@ -890,17 +996,104 @@ class TvActivity : FragmentActivity() {
 
         return formats
     }
+
     fun selectLanguage(language: String){
         val parameters = DefaultTrackSelector.ParametersBuilder()
             .setPreferredAudioLanguage(language)
-//                    .setTunnelingEnabled(true)
             .build()
         (mTvPlayer?.trackSelector as DefaultTrackSelector).parameters = parameters
-//                player.trackSelectionParameters = parameters
+
         mTvPlayer?.prepare()
 
     }
     fun getTracks(): AudioViewModel {
         return mTracksViewModel
+    }
+
+    private fun showInformation(shortEpg: ShortEpg?){
+        if (shortEpg != null){
+            val dialog = BaseDialog(this)
+            val binding : DialogEpgDetailsBinding =
+                DataBindingUtil.inflate(LayoutInflater.from(this),R.layout.dialog_epg_details, null, false)
+            binding.epg = shortEpg
+            dialog.setWidth(resources.getDimensionPixelSize(R.dimen.list_dialog_width))
+            dialog.setHeight(resources.getDimensionPixelSize(R.dimen.list_dialog_height))
+            dialog.bindContentView(binding.root)
+            dialog.show()
+        }
+    }
+    private fun showSearchDialog(){
+        val dialog = BaseDialog(this)
+        val binding : DialogSearchBinding = DataBindingUtil.inflate(LayoutInflater.from(this),
+            R.layout.dialog_search, null, false)
+        val viewModel = ViewModelProvider(this)[SearchResultViewModel::class.java]
+        binding.viewmodel = viewModel
+        binding.listener = object :SearchResultAdapter.Listener{
+            override fun onClick(item: Any) {
+                if (item is Channel){
+                    backgroundSetupScope.launch {
+                        val list = mRepository.findListByChannel(item.genreId!!)
+                        withContext(Dispatchers.Main){
+                            tune(channel = item,
+                                category = mCategoryMap[item.genreId],
+                                list = list
+                            )
+                            mCategoryFragment.scrollLast(item.genreId!!)
+                            dialog.dismiss()
+                        }
+
+                    }
+                }
+            }
+        }
+        binding.searchInput.addTextChangedListener(object :TextWatcher{
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+
+            }
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+                backgroundSetupScope.launch {
+                    val list = mRepository.search("$s")
+                    withContext(Dispatchers.Main){
+                        viewModel.setResult(list)
+                        binding.invalidateAll()
+                    }
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+        })
+        dialog.bindContentView(binding.root)
+        dialog.setWidth(resources.getDimensionPixelSize(R.dimen.list_dialog_width))
+        dialog.setHeight(resources.getDimensionPixelSize(R.dimen.list_dialog_height))
+        dialog.setCancelListener { viewModel.setResult(listOf()) }
+        dialog.setOnKeyListener()
+
+        dialog.show()
+    }
+
+    fun findCategoryById(genreId: String?): Category? {
+        return mCategoryMap[genreId]
+    }
+
+    fun scrollLastCategory(genreId: String) {
+        mCategoryFragment.scrollLast(genreId)
+    }
+    fun isGroupChannelNumbering(): GroupChannelNumbering {
+        return mConnectedPortal.group_Numbering
+    }
+    fun isMenuVisible(): Boolean {
+        return menuFragment?.isHidden == false
     }
 }

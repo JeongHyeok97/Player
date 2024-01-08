@@ -85,7 +85,6 @@ class MenuFragment(val portal: Portal): Fragment() {
     }
 
     inner class ItemClickListener(): MenuAdapter.OnItemClickEventListener{
-
         @Suppress("CAST_NEVER_SUCCEEDS")
         override fun onItemClick(menuString: String?) {
 

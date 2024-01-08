@@ -16,6 +16,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:use_controller="false"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
             />
 
         <include
@@ -43,6 +46,7 @@
             android:layout_height="match_parent"
             android:layout_marginTop="-100dp"
             app:layout_constraintEnd_toStartOf="parent"
+            android:layout_marginBottom="50dp"
             />
 
         <androidx.fragment.app.FragmentContainerView
@@ -51,6 +55,27 @@
             android:layout_height="match_parent"
             android:layout_marginTop="-100dp"
             app:layout_constraintStart_toEndOf="@id/category_container"
+
+            />
+
+        <include
+            android:id="@+id/channel_list_keyguide_view"
+            layout="@layout/channel_list_keyguide"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            app:layout_constraintStart_toStartOf="@id/category_container"
+            app:layout_constraintEnd_toEndOf="@id/category_container"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+        <EditText
+            android:id="@+id/channel_search"
+            android:layout_width="400dp"
+            android:layout_height="40dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="invisible"
+            tools:visibility="visible"
             />
         <ProgressBar
             android:id="@+id/start_loading"

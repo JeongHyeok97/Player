@@ -22,7 +22,4 @@ data class Category(
         val HISTORY = Category(id = HISTORY_ID, title = "RECENTLY WATCH", censored = false)
     }
 
-    override fun toString(): String {
-        return "Category{id:$id, title:$title}"
-    }
 }

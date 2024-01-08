@@ -11,7 +11,9 @@ import com.gi.hybridplayer.model.Channel
 
 
 @Database(entities = [Channel::class], version = 1)
+
 abstract class ChannelDatabase : RoomDatabase() {
+
     abstract fun channelsDao(): ChannelsDao
 
     companion object {

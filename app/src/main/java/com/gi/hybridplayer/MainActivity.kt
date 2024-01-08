@@ -115,7 +115,7 @@ class MainActivity : FragmentActivity(){
                 runOnUiThread {
                     AlertDialog.Builder(this@MainActivity)
                         .setTitle("Update")
-                        .setMessage("We have a new update")
+                        .setMessage(" We have a new update")
                         .setPositiveButton("OK") { _, _ ->
                             val updateLink = versionData.get("downloadLink").asText()
                             val update = Update(

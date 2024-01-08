@@ -1,6 +1,7 @@
 package com.gi.hybridplayer
 
 
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -62,6 +63,8 @@ class PortalActionFragment(val portal: Portal? = null) : Fragment(){
         actionDelete.setOnClickListener {
             CoroutineScope(Dispatchers.IO).launch {
                 (activity as MainActivity).getRepository().delete(selectedPortal)
+                val prefs =requireContext().getSharedPreferences("${selectedPortal.id}", MODE_PRIVATE)
+                prefs.edit().clear().apply()
                 withContext(Dispatchers.Main){
                     sfm.popBackStack()
                 }

@@ -326,19 +326,24 @@ class EPGFragment
     }
 
     fun setEpgDetail() {
+/*
         if (mSelectedSchedule?.isGap == false){
             val originalNetworkId = mSelectedChannel?.chId?.toLong()
-            val shortEpgList = mRootActivity.getShortEpg(originalNetworkId!!)
-            var shortEpg: ShortEpg? = null
-            shortEpgList.forEach {
-                if (it.name == mSelectedSchedule?.displayTitle){
-                    shortEpg = it
+            mCoroutineScope.launch {
+                val shortEpgList = mRootActivity.getShortEpg(originalNetworkId!!)
+                var shortEpg: ShortEpg? = null
+                shortEpgList.forEach {
+                    if (it.name == mSelectedSchedule?.displayTitle){
+                        shortEpg = it
+                    }
+                }
+                withContext(Dispatchers.Main){
+                    mRootActivity.showInformation(shortEpg)
                 }
             }
-            if (shortEpg != null){
 
-            }
         }
+*/
     }
 
 

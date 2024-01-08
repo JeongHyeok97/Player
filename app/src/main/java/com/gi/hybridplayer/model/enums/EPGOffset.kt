@@ -35,6 +35,6 @@ enum class EPGOffset (val offset: String) {
 
 
     override fun toString(): String {
-        return "$name($offset)";
+        return "EPG Offset: $name($offset)";
     }
 }

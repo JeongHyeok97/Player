@@ -78,6 +78,45 @@
         android:text="@string/banner_lock"
         />
 
+
+    <View
+        android:id="@+id/search"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toStartOf="@id/key_guide_search"
+        android:background = "@drawable/ic_up"
+        />
+
+    <TextView
+        android:id="@+id/key_guide_search"
+        style="@style/ProgramGuide.Text.KeyGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text = "@string/banner_search"
+        app:layout_constraintEnd_toStartOf="@id/detail"
+        android:layout_marginEnd="10dp"
+        />
+
+
+
+    <View
+        android:id="@+id/detail"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toStartOf="@id/key_guide_detail"
+        android:background = "@drawable/ic_down"
+        />
+
+    <TextView
+        android:id="@+id/key_guide_detail"
+        style="@style/ProgramGuide.Text.KeyGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text = "@string/banner_detail"
+        app:layout_constraintEnd_toStartOf="@id/audio"
+        android:layout_marginEnd="10dp"
+        />
+
     <View
         android:id="@+id/audio"
         android:layout_width="20dp"

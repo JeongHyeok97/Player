@@ -32,6 +32,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class VodDetailsFragment : Fragment(){
+
+
     private lateinit var binding: FragmentDetailsBinding
     private lateinit var viewModel: VodDetailsViewModel
     private var mExtraRowsFragment:RowsSupportFragment? = null
@@ -209,15 +211,4 @@ class VodDetailsFragment : Fragment(){
             }
         }
     }
-
-    private fun setData(episodesData: String){
-        val om = ObjectMapper()
-        val nodes = om.readTree(episodesData).get("js").get("data")
-
-        nodes.forEach {
-            val series: Vod = om.treeToValue(it, Vod::class.java)
-
-        }
-    }
-
 }

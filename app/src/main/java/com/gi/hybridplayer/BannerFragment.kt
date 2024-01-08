@@ -38,6 +38,7 @@ class BannerFragment: Fragment() {
     private lateinit var mRootActivity: TvActivity
     private lateinit var mZoneId: String
     private val mBackgroundScope = CoroutineScope(Dispatchers.IO)
+    private var mCurrentProgram: ShortEpg? = null
 
     var bannerOsdTimeout:Long = 5000L
     companion object {
@@ -161,7 +162,7 @@ class BannerFragment: Fragment() {
             if (map.isNotEmpty()){
                 binding.channelGroup.text = map[channel.genreId]!!.title
             }
-            if (!mRootActivity.isEpgVisible()){
+            if (!mRootActivity.isEpgVisible() && !mRootActivity.isMenuVisible()){
                 sfm.beginTransaction().show(this@BannerFragment).commit()
                 bannerAnimationHandler.postDelayed({
                     sfm.beginTransaction().hide(this@BannerFragment).commit()
@@ -202,6 +203,7 @@ class BannerFragment: Fragment() {
                     if (getTimeMillisFromHHmm(program.time!!)<System.currentTimeMillis()/1000
                         && getTimeMillisFromHHmm(program.timeTo!!)>System.currentTimeMillis()/1000){
                         currentProgram = program
+                        mCurrentProgram = currentProgram
                     }
                 }
 
@@ -231,7 +233,7 @@ class BannerFragment: Fragment() {
         val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val date: Date = sdf.parse(timeString)
         val timestamp: Long = date.time
-        return timestamp/1000 // 오류가 발생하거나 변환이 실패할 경우 -1L 반환
+        return timestamp/1000
     }
 
     fun convertMillisToHumanDate(millis: Long, zoneId: String): String {
@@ -299,4 +301,7 @@ class BannerFragment: Fragment() {
         }
     }
 
+    fun getCurrentProgram(): ShortEpg? {
+        return mCurrentProgram
+    }
 }
